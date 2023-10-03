@@ -16,7 +16,7 @@ module.exports = {
       env: {
         node: true,
       },
-      files: ['.eslintrc.{js,cjs}', 'vite.config.ts'],
+      files: ['.eslintrc.{js,cjs}', 'vite.config.ts', 'setupTests.ts'],
       rules: {
         'import/no-extraneous-dependencies': [
           'error',
@@ -48,7 +48,12 @@ module.exports = {
     'comma-dangle': ['error', 'only-multiline'],
     'react/prop-types': 'off',
     'react/display-name': 'off',
-    'prettier/prettier': ['error', { trailingComma: 'es5' }],
+    'prettier/prettier': [
+      'error',
+      {
+        trailingComma: 'es5',
+      },
+    ],
   },
   settings: {
     react: {
