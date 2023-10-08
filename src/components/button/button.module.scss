@@ -1,0 +1,26 @@
+@import '../../sass/variables.scss';
+
+.button {
+  padding: 12px 45px;
+  background: $accent;
+  color: $white;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+
+  &:hover {
+    background: $hover;
+  }
+
+  &:active {
+    background: $active;
+    scale: 0.99;
+  }
+
+  &:disabled {
+    background: $disabled;
+  }
+}
