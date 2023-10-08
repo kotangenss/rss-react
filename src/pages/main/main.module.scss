@@ -1,0 +1,19 @@
+@import '../../sass/variables.scss';
+
+body {
+  background: $generalBackground;
+  font-family: 'Montserrat', sans-serif;
+  color: $white;
+}
+
+button {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.container {
+  position: relative;
+  width: 1320px;
+  margin: 0 auto;
+  padding: 0 25px;
+}
