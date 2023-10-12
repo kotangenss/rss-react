@@ -3,14 +3,21 @@ import styles from './searchSection.module.scss';
 import marvelLogo from '../../assets/img/marvelLogo.svg';
 import spiderMan from '../../assets/img/spiderMan.png';
 import SearchInput from '../searchInput';
+import { Item } from '../../interfaces/resultSection';
 
-export default class SearchSection extends React.Component {
-  constructor(props: object) {
+interface AProps {
+  handleResult: (results: Item[]) => void;
+}
+
+export default class SearchSection extends React.Component<AProps> {
+  constructor(props: AProps) {
     super(props);
     this.state = {};
   }
 
   render(): JSX.Element {
+    const { handleResult } = this.props;
+
     return (
       <div className={styles['search-section']}>
         <a
@@ -30,12 +37,12 @@ export default class SearchSection extends React.Component {
           <div className={styles['search-description']}>
             <p>Welcome to the world&apos;s greatest comics API!</p>
             <p>
-              The Marvel Comics API is a tool to help developers everywhere create amazing, uncanny
-              and incredible web sites and applications using data from the 70-plus years of the
-              Marvel age of comics.
+              Enter the name of any character in the Marvel universe (for example, «Hulk» or
+              «Spider-Man») and, if available, you will receive a description of the character, a
+              complete list of comics and series in which this hero appears. Enjoy!
             </p>
           </div>
-          <SearchInput type="text" placeholder="Search for characters, comics, events, etc." />
+          <SearchInput type="text" placeholder="Search..." handleResult={handleResult} />
           <div className={styles['main-img']}>
             <img src={spiderMan} alt="spider man" />
           </div>

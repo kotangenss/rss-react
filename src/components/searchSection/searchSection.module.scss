@@ -9,7 +9,6 @@
   border-radius: 5px;
   margin: 50px auto 0;
   padding: 45px;
-  user-select: none;
   z-index: 1;
 
   &::before {
@@ -66,7 +65,7 @@ h1 {
 
 .main-img {
   position: absolute;
-  top: -170px;
+  top: -200px;
   right: 115px;
 
   img {
