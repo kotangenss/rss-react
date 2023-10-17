@@ -22,5 +22,10 @@
 
   &:disabled {
     background: $disabled;
+    cursor: default;
+
+    &:active {
+      scale: 1;
+    }
   }
 }

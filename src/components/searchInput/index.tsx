@@ -2,13 +2,36 @@ import React from 'react';
 import styles from './input.module.scss';
 import Button from '../button';
 import { SearchInputProps } from '../../interfaces/searchSection';
+import { Item } from '../../interfaces/resultSection';
+
+export interface Result {
+  data: {
+    results: Item[];
+  };
+}
 
 export default class SearchInput extends React.Component<SearchInputProps, { inputValue: string }> {
+  static loadData(inputValue: string, limit: number, offset: number): Promise<Result> {
+    const apiUrl = `https://gateway.marvel.com/v1/public/characters?ts=1&limit=${limit}&apikey=fc27ccfdf4f6216977c85675f33f1731&hash=90cbc144b23e3074532d7dda72228c74&nameStartsWith=${inputValue.trim()}&offset=${offset}`;
+
+    return fetch(apiUrl).then((response) => {
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      return response.json();
+    });
+  }
+
   constructor(props: SearchInputProps) {
     super(props);
+    const inputValue = localStorage.getItem('searchQuery') || '';
     this.state = {
-      inputValue: '',
+      inputValue,
     };
+
+    if (inputValue !== '') {
+      this.handleSearch();
+    }
   }
 
   handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -17,18 +40,26 @@ export default class SearchInput extends React.Component<SearchInputProps, { inp
 
   handleSearch = (): void => {
     const { inputValue } = this.state;
-    const apiUrl = `https://gateway.marvel.com/v1/public/characters?ts=1&apikey=fc27ccfdf4f6216977c85675f33f1731&hash=90cbc144b23e3074532d7dda72228c74&limit=3&nameStartsWith=${inputValue}`;
     const { handleResult } = this.props;
+    const limit = 100;
+    const totalCharacters = 250;
+    const requests = [];
 
-    fetch(apiUrl)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        handleResult(data.data.results);
+    localStorage.setItem('searchQuery', inputValue);
+
+    for (let offset = 0; offset < totalCharacters; offset += limit) {
+      requests.push(SearchInput.loadData(inputValue, limit, offset));
+    }
+
+    Promise.all(requests)
+      .then((responses) => {
+        const characters: Item[] = [];
+
+        responses.forEach((response) => {
+          characters.push(...response.data.results);
+        });
+
+        handleResult(characters);
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -42,6 +73,7 @@ export default class SearchInput extends React.Component<SearchInputProps, { inp
     return (
       <div className={styles['search-input']}>
         <input
+          id="input"
           type={type}
           placeholder={placeholder}
           value={inputValue}

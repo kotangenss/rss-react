@@ -2,6 +2,7 @@ import { Item } from './resultSection';
 
 export interface ButtonProps {
   name: string;
+  disabled?: boolean;
   onClick?: () => void;
 }
 

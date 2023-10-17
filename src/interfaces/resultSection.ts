@@ -24,3 +24,13 @@ interface GeneralItem {
   name: string;
   type?: string;
 }
+
+export interface Props {
+  items: Item[];
+}
+
+export interface State {
+  currentPage: number;
+  items: Item[];
+  myRef: React.RefObject<HTMLDivElement>;
+}

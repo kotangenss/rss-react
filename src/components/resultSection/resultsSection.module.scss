@@ -1,6 +1,9 @@
 @import '../../sass/variables.scss';
 
 .result-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-top: 60px;
 }
 
@@ -77,4 +80,32 @@ h2 {
   font-size: 15px;
   opacity: 0.5;
   line-height: 150%;
+}
+
+.result-pagination {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 320px;
+  height: 50px;
+  margin: 20px 0;
+
+  button {
+    width: 30%;
+    padding: 12px 25px;
+
+    &:first-child {
+      top: 0;
+      left: 0;
+    }
+
+    &:last-child {
+      top: 0;
+      right: 0;
+    }
+  }
+
+  p {
+    text-align: center;
+  }
 }
