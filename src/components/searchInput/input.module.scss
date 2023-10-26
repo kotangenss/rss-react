@@ -1,5 +1,11 @@
 .search-input {
   position: relative;
+
+  button {
+    position: absolute;
+    bottom: 2px;
+    right: 0;
+  }
 }
 
 input {
@@ -18,10 +24,4 @@ input {
   &::placeholder {
     opacity: 0.7;
   }
-}
-
-button {
-  position: absolute;
-  bottom: 2px;
-  right: 0;
 }

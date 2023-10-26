@@ -1,31 +1,28 @@
 @import '../../sass/variables.scss';
+@import '../../sass/mixins.scss';
 
 .button {
+  @include button-base;
   padding: 12px 45px;
   background: $accent;
-  color: $white;
-  outline: none;
-  border: none;
-  border-radius: 4px;
-  font-family: 'Montserrat', sans-serif;
   font-size: 18px;
-  font-weight: 600;
+}
 
-  &:hover {
-    background: $hover;
-  }
+.simulate-button {
+  @include button-base;
+  rotate: -10deg;
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  top: 55px;
+  padding: 10px 25px;
+  background: $blueNormal;
+  font-size: 15px;
 
-  &:active {
-    background: $active;
-    scale: 0.99;
-  }
-
-  &:disabled {
-    background: $disabled;
-    cursor: default;
-
-    &:active {
-      scale: 1;
-    }
+  &::after {
+    position: absolute;
+    content: '☠️';
+    font-size: 38px;
+    rotate: 20deg;
   }
 }

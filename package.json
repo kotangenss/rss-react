@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 && echo 'Linting ran successfully' || echo 'Linting encountered errors'",
     "preview": "vite preview",
-    "fix": "prettier --write . && echo 'Prettier ran successfully' || echo 'Prettier encountered errors'",
+    "format:fix": "prettier --write . && echo 'Prettier ran successfully' || echo 'Prettier encountered errors'",
     "prepare": "husky install",
     "test": "vitest run --coverage"
   },
