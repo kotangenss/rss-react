@@ -25,4 +25,12 @@
     font-size: 38px;
     rotate: 20deg;
   }
+
+  &:hover {
+    background: $blueHover;
+  }
+
+  &:active {
+    background: $blueActive;
+  }
 }

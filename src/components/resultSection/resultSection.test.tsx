@@ -94,7 +94,7 @@ describe('ResultSection', () => {
       },
     ];
 
-    render(<ResultSection items={items} />);
+    render(<ResultSection items={items} isSearchStart={false} />);
   });
 
   it('Should scroll to the top of the section when goToNextPage is called', () => {
@@ -187,7 +187,7 @@ describe('ResultSection', () => {
         },
       },
     ];
-    const resultSection = new ResultSection({ items });
+    const resultSection = new ResultSection({ items, isSearchStart: false });
     const scrollToHeadSpy = vi.spyOn(resultSection, 'scrollToHead');
     resultSection.goToNextPage();
 
@@ -284,7 +284,7 @@ describe('ResultSection', () => {
         },
       },
     ];
-    const resultSection = new ResultSection({ items });
+    const resultSection = new ResultSection({ items, isSearchStart: false });
     const scrollToHeadSpy = vi.spyOn(resultSection, 'scrollToHead');
     resultSection.goToPrevPage();
 
@@ -469,9 +469,9 @@ describe('ResultSection', () => {
         },
       },
     ];
-    const resultSection = new ResultSection({ items: initialItems });
+    const resultSection = new ResultSection({ items: initialItems, isSearchStart: false });
     const setStateSpy = vi.spyOn(resultSection, 'setState');
-    resultSection.componentDidUpdate({ items: updatedItems });
+    resultSection.componentDidUpdate({ items: updatedItems, isSearchStart: false });
 
     expect(setStateSpy.mock.calls.length).toBe(1);
     expect(resultSection.state.items).toStrictEqual(updatedItems);

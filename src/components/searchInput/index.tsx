@@ -1,16 +1,10 @@
 import React from 'react';
 import styles from './input.module.scss';
 import Button from '../button';
-import { SearchInputProps } from '../../interfaces/searchSection';
+import { Result, SearchInputProps, SearchInputState } from '../../interfaces/searchInput';
 import { Item } from '../../interfaces/resultSection';
 
-export interface Result {
-  data: {
-    results: Item[];
-  };
-}
-
-export default class SearchInput extends React.Component<SearchInputProps, { inputValue: string }> {
+export default class SearchInput extends React.Component<SearchInputProps, SearchInputState> {
   static loadData(inputValue: string, limit: number, offset: number): Promise<Result> {
     const apiUrl = `https://gateway.marvel.com/v1/public/characters?ts=1&limit=${limit}&apikey=fc27ccfdf4f6216977c85675f33f1731&hash=90cbc144b23e3074532d7dda72228c74&nameStartsWith=${inputValue.trim()}&offset=${offset}`;
 
@@ -27,8 +21,12 @@ export default class SearchInput extends React.Component<SearchInputProps, { inp
     const inputValue = localStorage.getItem('searchQuery') || '';
     this.state = {
       inputValue,
+      isLoading: false,
     };
+  }
 
+  componentDidMount(): void {
+    const { inputValue } = this.state;
     if (inputValue !== '') {
       this.handleSearch();
     }
@@ -40,12 +38,14 @@ export default class SearchInput extends React.Component<SearchInputProps, { inp
 
   handleSearch = (): void => {
     const { inputValue } = this.state;
-    const { handleResult } = this.props;
+    const { handleResult, handleStartSearch } = this.props;
     const limit = 100;
     const totalCharacters = 250;
     const requests = [];
 
     localStorage.setItem('searchQuery', inputValue);
+    this.setState({ isLoading: true });
+    handleStartSearch();
 
     for (let offset = 0; offset < totalCharacters; offset += limit) {
       requests.push(SearchInput.loadData(inputValue, limit, offset));
@@ -60,15 +60,17 @@ export default class SearchInput extends React.Component<SearchInputProps, { inp
         });
 
         handleResult(characters);
+        this.setState({ isLoading: false });
       })
       .catch((error) => {
         console.error('Error:', error);
+        this.setState({ isLoading: false });
       });
   };
 
   render(): JSX.Element {
     const { type, placeholder } = this.props;
-    const { inputValue } = this.state;
+    const { inputValue, isLoading } = this.state;
 
     return (
       <div className={styles['search-input']}>
@@ -79,7 +81,7 @@ export default class SearchInput extends React.Component<SearchInputProps, { inp
           value={inputValue}
           onChange={this.handleInputChange}
         />
-        <Button name="Search" onClick={this.handleSearch} />
+        <Button name="Search" onClick={this.handleSearch} disabled={isLoading} />
       </div>
     );
   }

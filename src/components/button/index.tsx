@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './button.module.scss';
-import { ButtonProps } from '../../interfaces/searchSection';
+import { ButtonProps } from '../../interfaces/button';
 
 export default class Button extends React.Component<ButtonProps> {
   constructor(props: ButtonProps) {

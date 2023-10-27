@@ -5,18 +5,27 @@ import ResultSection from '../../components/resultSection';
 import { Item } from '../../interfaces/resultSection';
 import Button from '../../components/button';
 
-export default class Main extends React.Component<object, { items: Item[]; hasError: boolean }> {
+export default class Main extends React.Component<
+  object,
+  { items: Item[]; hasError: boolean; isSearchStart: boolean }
+> {
   constructor(props: object) {
     super(props);
     this.state = {
       items: [],
       hasError: false,
+      isSearchStart: false,
     };
     this.handleResultInput = this.handleResultInput.bind(this);
+    this.handleStartSearch = this.handleStartSearch.bind(this);
   }
 
   handleResultInput(items: Item[]): void {
-    this.setState({ items });
+    this.setState({ items, isSearchStart: false });
+  }
+
+  handleStartSearch(): void {
+    this.setState({ isSearchStart: true });
   }
 
   handleButtonClick = (): void => {
@@ -24,7 +33,7 @@ export default class Main extends React.Component<object, { items: Item[]; hasEr
   };
 
   render(): JSX.Element {
-    const { items, hasError } = this.state;
+    const { items, hasError, isSearchStart } = this.state;
 
     if (hasError) {
       throw new Error('Throw an error after clicking a button');
@@ -37,8 +46,11 @@ export default class Main extends React.Component<object, { items: Item[]; hasEr
           name="Simulate Error"
           onClick={this.handleButtonClick}
         />
-        <SearchSection handleResult={this.handleResultInput} />
-        <ResultSection items={items} />
+        <SearchSection
+          handleResult={this.handleResultInput}
+          handleStartSearch={this.handleStartSearch}
+        />
+        <ResultSection items={items} isSearchStart={isSearchStart} />
       </div>
     );
   }

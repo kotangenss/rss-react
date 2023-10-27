@@ -6,7 +6,14 @@ import { Item } from '../../interfaces/resultSection';
 describe('SearchInput', () => {
   it('Renders the input field and button with the provided props', () => {
     const placeholderText = 'Enter a search query';
-    render(<SearchInput type="text" placeholder={placeholderText} handleResult={(): void => {}} />);
+    render(
+      <SearchInput
+        type="text"
+        placeholder={placeholderText}
+        handleResult={(): void => {}}
+        handleStartSearch={(): void => {}}
+      />
+    );
 
     const inputElement = screen.getByPlaceholderText(placeholderText);
     expect(inputElement).toBeDefined();
@@ -18,7 +25,12 @@ describe('SearchInput', () => {
 
   it('Updates state when input value changes', async () => {
     const { container } = render(
-      <SearchInput type="text" placeholder="Enter a search query" handleResult={(): void => {}} />
+      <SearchInput
+        type="text"
+        placeholder="Enter a search query"
+        handleResult={(): void => {}}
+        handleStartSearch={(): void => {}}
+      />
     );
     const inputElement = container.querySelector('input');
 
@@ -74,6 +86,7 @@ describe('SearchInput', () => {
           'Iron Man',
         ]);
       },
+      handleStartSearch: (): void => {},
     });
 
     SearchInput.loadData = vi.fn().mockResolvedValue(
@@ -91,6 +104,7 @@ describe('SearchInput', () => {
       type: 'text',
       placeholder: 'asd',
       handleResult: (): void => {},
+      handleStartSearch: (): void => {},
     });
 
     searchInput.setState = vi.fn();

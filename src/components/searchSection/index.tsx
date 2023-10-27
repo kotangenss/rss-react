@@ -3,20 +3,16 @@ import styles from './searchSection.module.scss';
 import marvelLogo from '../../assets/img/marvelLogo.svg';
 import spiderMan from '../../assets/img/spiderMan.png';
 import SearchInput from '../searchInput';
-import { Item } from '../../interfaces/resultSection';
+import { SearchSectionProps } from '../../interfaces/searchSection';
 
-interface AProps {
-  handleResult: (results: Item[]) => void;
-}
-
-export default class SearchSection extends React.Component<AProps> {
-  constructor(props: AProps) {
+export default class SearchSection extends React.Component<SearchSectionProps> {
+  constructor(props: SearchSectionProps) {
     super(props);
     this.state = {};
   }
 
   render(): JSX.Element {
-    const { handleResult } = this.props;
+    const { handleResult, handleStartSearch } = this.props;
 
     return (
       <div className={styles['search-section']}>
@@ -42,7 +38,12 @@ export default class SearchSection extends React.Component<AProps> {
               complete list of comics and series in which this hero appears. Enjoy!
             </p>
           </div>
-          <SearchInput type="text" placeholder="Search..." handleResult={handleResult} />
+          <SearchInput
+            type="text"
+            placeholder="Search..."
+            handleResult={handleResult}
+            handleStartSearch={handleStartSearch}
+          />
           <div className={styles['main-img']}>
             <img src={spiderMan} alt="spider man" />
           </div>

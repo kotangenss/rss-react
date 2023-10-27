@@ -25,12 +25,14 @@ interface GeneralItem {
   type?: string;
 }
 
-export interface Props {
+export interface ResultSectionProps {
   items: Item[];
+  isSearchStart: boolean;
 }
 
-export interface State {
+export interface ResultSectionState {
   currentPage: number;
   items: Item[];
   myRef: React.RefObject<HTMLDivElement>;
+  isLoading?: boolean;
 }
