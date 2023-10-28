@@ -1,10 +1,10 @@
-# Welcome to the application created using the [Marvel API](https://developer.marvel.com/).
+# Welcome to the app created using the [Marvel API](https://developer.marvel.com/)!
 
 Here you can enter the name of any Marvel character (for example, «Hulk» or «Spider-Man», or just the first character «x», «a» ) and, if available, you will receive a description of the character, a complete list of comics and series in which this hero.
 
 This project is a modern web application built using React and TypeScript, with a development environment powered by Vite. It utilizes various tools and libraries for testing, linting, and code formatting to ensure code quality and maintainability ([SASS](https://sass-lang.com/), [Husky](https://typicode.github.io/husky/), [ESLint](https://eslint.org/), [Prettier](https://prettier.io/), [Vite](https://vitejs.dev/), [Vitest](https://vitest.dev/)).
 
-***Enjoy!***
+**Enjoy!**
 
 ## Available Scripts
 
@@ -16,7 +16,7 @@ This script starts the development of your project using Vite, which is a modern
 
 ### `npm run build`
 
-This script compiles your TypeScript code (`tsc`) and then builds the project using Vite. The build result will be located in the `dist` directory (or another directory if configured differently in Vite).
+This script compiles TypeScript code (`tsc`) and then builds the project using Vite.
 
 ### `npm run lint`
 
