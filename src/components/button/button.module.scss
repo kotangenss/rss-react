@@ -1,0 +1,36 @@
+@import '../../sass/variables.scss';
+@import '../../sass/mixins.scss';
+
+.button {
+  @include button-base;
+  padding: 12px 45px;
+  background: $accent;
+  font-size: 18px;
+}
+
+.simulate-button {
+  @include button-base;
+  rotate: -10deg;
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  top: 55px;
+  padding: 10px 25px;
+  background: $blueNormal;
+  font-size: 15px;
+
+  &::after {
+    position: absolute;
+    content: '☠️';
+    font-size: 38px;
+    rotate: 20deg;
+  }
+
+  &:hover {
+    background: $blueHover;
+  }
+
+  &:active {
+    background: $blueActive;
+  }
+}

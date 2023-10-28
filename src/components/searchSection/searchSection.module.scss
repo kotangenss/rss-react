@@ -1,0 +1,79 @@
+@import '../../sass/variables.scss';
+
+.search-section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: $sectionBackground;
+  border-radius: 5px;
+  margin: 50px auto 0;
+  padding: 45px;
+  z-index: 1;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 525px;
+    height: 528px;
+    background: url('../../assets/img/web.png') no-repeat;
+    opacity: 0.1;
+    z-index: -1;
+  }
+}
+
+.marvel-logo {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  width: 110px;
+  margin-left: -50px;
+}
+
+h1 {
+  font-size: 155px;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0;
+  margin-top: 90px;
+
+  span {
+    &:first-child {
+      color: $accent;
+    }
+
+    &:last-child {
+      color: $white;
+    }
+  }
+}
+
+.search-container {
+  max-width: 55%;
+  margin-top: 10px;
+}
+
+.search-description {
+  p {
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 140%;
+  }
+
+  span {
+    font-weight: 600;
+    color: $accent;
+  }
+}
+
+.main-img {
+  position: absolute;
+  top: -200px;
+  right: 115px;
+
+  img {
+    width: 100%;
+  }
+}
