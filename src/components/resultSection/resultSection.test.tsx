@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import ResultSection from './index';
+import { Item } from '../../interfaces/resultSection';
 
 describe('ResultSection', () => {
   it('Renders without errors', () => {
@@ -476,5 +477,28 @@ describe('ResultSection', () => {
     expect(setStateSpy.mock.calls.length).toBe(1);
     expect(resultSection.state.items).toStrictEqual(updatedItems);
     expect(resultSection.state.currentPage).toBe(0);
+  });
+
+  it('Renders "Nothing found" when items are empty and not loading', () => {
+    HTMLElement.prototype.scrollIntoView = vi.fn();
+    const items: Item[] = [];
+    const resultSection = new ResultSection({ items, isSearchStart: false });
+    const { container } = render(resultSection.render());
+
+    const resultHeader = container.querySelector('h2');
+    expect(resultHeader).not.toBeNull();
+    if (resultHeader) {
+      expect(resultHeader.textContent).toBe('Nothing found');
+    }
+  });
+
+  it('Renders nothing when loading', () => {
+    HTMLElement.prototype.scrollIntoView = vi.fn();
+    const items: Item[] = [];
+    const resultSection = new ResultSection({ items, isSearchStart: true });
+    const { container } = render(resultSection.render());
+
+    const resultHeader = container.querySelector('h2');
+    expect(resultHeader).toBeNull();
   });
 });

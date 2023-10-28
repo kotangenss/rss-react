@@ -29,8 +29,27 @@ export default class SearchInput extends React.Component<SearchInputProps, Searc
     const { inputValue } = this.state;
     if (inputValue !== '') {
       this.handleSearch();
+    } else {
+      this.fetchAllCharacters();
     }
   }
+
+  fetchAllCharacters = (): void => {
+    const limit = 100;
+    const offset = 0;
+    const requests = [];
+    const { handleStartSearch, handleResult } = this.props;
+
+    this.setState({ isLoading: true });
+    handleStartSearch();
+
+    for (let letter = 'a'.charCodeAt(0); letter <= 'z'.charCodeAt(0); letter += 1) {
+      const letterChar = String.fromCharCode(letter);
+      requests.push(SearchInput.loadData(letterChar, limit, offset));
+    }
+
+    this.handleRequestsAndResults(requests, handleResult);
+  };
 
   handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     this.setState({ inputValue: e.target.value });
@@ -40,17 +59,31 @@ export default class SearchInput extends React.Component<SearchInputProps, Searc
     const { inputValue } = this.state;
     const { handleResult, handleStartSearch } = this.props;
     const limit = 100;
-    const totalCharacters = 250;
+    const totalCharacters = 200;
     const requests = [];
 
-    localStorage.setItem('searchQuery', inputValue);
+    const trimmedInputValue = inputValue.trim();
+    if (trimmedInputValue === '') {
+      handleResult([]);
+      this.setState({ isLoading: false });
+      return;
+    }
+
+    localStorage.setItem('searchQuery', trimmedInputValue);
     this.setState({ isLoading: true });
     handleStartSearch();
 
     for (let offset = 0; offset < totalCharacters; offset += limit) {
-      requests.push(SearchInput.loadData(inputValue, limit, offset));
+      requests.push(SearchInput.loadData(trimmedInputValue, limit, offset));
     }
 
+    this.handleRequestsAndResults(requests, handleResult);
+  };
+
+  handleRequestsAndResults = (
+    requests: Promise<Result>[],
+    handleResult: (results: Item[]) => void
+  ): void => {
     Promise.all(requests)
       .then((responses) => {
         const characters: Item[] = [];

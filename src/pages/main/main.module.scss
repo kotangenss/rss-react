@@ -1,7 +1,7 @@
 @import '../../sass/variables.scss';
 
 body {
-  background: $generalBackground;
+  background: $generalBackground url('../../assets/img/bg-image.png') top center no-repeat;
   font-family: 'Montserrat', sans-serif;
   color: $white;
 }

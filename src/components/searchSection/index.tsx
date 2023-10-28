@@ -33,9 +33,10 @@ export default class SearchSection extends React.Component<SearchSectionProps> {
           <div className={styles['search-description']}>
             <p>Welcome to the world&apos;s greatest comics API!</p>
             <p>
-              Enter the name of any character in the Marvel universe (for example, «Hulk» or
-              «Spider-Man») and, if available, you will receive a description of the character, a
-              complete list of comics and series in which this hero appears. Enjoy!
+              Enter the name of any character in the Marvel universe (for example,{' '}
+              <span>«Hulk»</span> or <span>«Spider-Man»</span>, or just the first character{' '}
+              <span>«x»</span>, <span>«a»</span> ) and, if available, you will receive a description
+              of the character, a complete list of comics and series in which this hero. Enjoy!
             </p>
           </div>
           <SearchInput

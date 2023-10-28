@@ -66,15 +66,26 @@ export default class ResultSection extends React.Component<ResultSectionProps, R
     const startIndex = currentPage * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const displayedItems = items.slice(startIndex, endIndex);
+    let resultHeader;
+
+    if (!isLoading) {
+      if (items.length === 0) {
+        resultHeader = <h2>Nothing found</h2>;
+      } else {
+        resultHeader = <h2>Results ({items.length})</h2>;
+      }
+    } else {
+      resultHeader = null;
+    }
 
     return (
       <div ref={myRef} className={styles['result-section']}>
-        {items.length === 0 ? <h2>Nothing found</h2> : <h2>Results ({items.length})</h2>}
+        {resultHeader}
         <div className={styles['result-container']}>
           {isLoading ? (
             <div className={styles['loading-container']}>
               <div className={styles['loading-icon']} />
-              <p>Loading</p>
+              <p>Please wait. Loading in progress</p>
             </div>
           ) : (
             displayedItems.map((item) => (

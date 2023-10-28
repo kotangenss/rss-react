@@ -5,6 +5,12 @@ import { Item } from '../../interfaces/resultSection';
 
 describe('SearchInput', () => {
   it('Renders the input field and button with the provided props', () => {
+    const result = { data: { results: ['Spider-Man', 'Iron Man'] } };
+    window.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(result),
+    });
+
     const placeholderText = 'Enter a search query';
     render(
       <SearchInput
@@ -24,6 +30,12 @@ describe('SearchInput', () => {
   });
 
   it('Updates state when input value changes', async () => {
+    const result = { data: { results: ['Spider-Man', 'Iron Man'] } };
+    window.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(result),
+    });
+
     const { container } = render(
       <SearchInput
         type="text"
@@ -77,14 +89,7 @@ describe('SearchInput', () => {
       type: 'text',
       placeholder: '',
       handleResult: (data: Item[]): void => {
-        expect(data).toStrictEqual([
-          'Spider-Man',
-          'Iron Man',
-          'Spider-Man',
-          'Iron Man',
-          'Spider-Man',
-          'Iron Man',
-        ]);
+        expect(data).toStrictEqual(['Spider-Man', 'Iron Man', 'Spider-Man', 'Iron Man']);
       },
       handleStartSearch: (): void => {},
     });
@@ -106,7 +111,6 @@ describe('SearchInput', () => {
       handleResult: (): void => {},
       handleStartSearch: (): void => {},
     });
-
     searchInput.setState = vi.fn();
     const getSearchInputSpy = vi.spyOn(searchInput, 'setState');
 
