@@ -1,8 +1,8 @@
 # Welcome to the application created using the [Marvel API](https://developer.marvel.com/).
 
-*Here you can enter the name of any Marvel character (for example, «Hulk» or «Spider-Man», or just the first character «x», «a» ) and, if available, you will receive a description of the character, a complete list of comics and series in which this hero.*
+Here you can enter the name of any Marvel character (for example, «Hulk» or «Spider-Man», or just the first character «x», «a» ) and, if available, you will receive a description of the character, a complete list of comics and series in which this hero.
 
-*This project is a modern web application built using React and TypeScript, with a development environment powered by Vite. It utilizes various tools and libraries for testing, linting, and code formatting to ensure code quality and maintainability ([SASS](https://sass-lang.com/), [Husky](https://typicode.github.io/husky/), [ESLint](https://eslint.org/), [Prettier](https://prettier.io/), [Vite](https://vitejs.dev/), [Vitest](https://vitest.dev/)).*
+This project is a modern web application built using React and TypeScript, with a development environment powered by Vite. It utilizes various tools and libraries for testing, linting, and code formatting to ensure code quality and maintainability ([SASS](https://sass-lang.com/), [Husky](https://typicode.github.io/husky/), [ESLint](https://eslint.org/), [Prettier](https://prettier.io/), [Vite](https://vitejs.dev/), [Vitest](https://vitest.dev/)).
 
 ***Enjoy!***
 
