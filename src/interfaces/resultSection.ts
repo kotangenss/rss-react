@@ -29,10 +29,3 @@ export interface ResultSectionProps {
   items: Item[];
   isSearchStart: boolean;
 }
-
-export interface ResultSectionState {
-  currentPage: number;
-  items: Item[];
-  myRef: React.RefObject<HTMLDivElement>;
-  isLoading?: boolean;
-}

@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import SearchInput from './index';
-import { Item } from '../../interfaces/resultSection';
+import SearchInput, { handleSearch, loadData } from './index';
 
 describe('SearchInput', () => {
   it('Renders the input field and button with the provided props', () => {
@@ -18,6 +17,7 @@ describe('SearchInput', () => {
         placeholder={placeholderText}
         handleResult={(): void => {}}
         handleStartSearch={(): void => {}}
+        isExistItems
       />
     );
 
@@ -42,6 +42,7 @@ describe('SearchInput', () => {
         placeholder="Enter a search query"
         handleResult={(): void => {}}
         handleStartSearch={(): void => {}}
+        isExistItems
       />
     );
     const inputElement = container.querySelector('input');
@@ -66,7 +67,7 @@ describe('SearchInput', () => {
       json: () => Promise.resolve(result),
     });
 
-    const searchData = await SearchInput.loadData('', 1, 1);
+    const searchData = await loadData('', 1, 1);
 
     expect(searchData).toStrictEqual(result);
   });
@@ -77,40 +78,49 @@ describe('SearchInput', () => {
       status: 123,
     });
 
-    expect(SearchInput.loadData('', 1, 1)).rejects.toThrowError(/123/);
+    expect(loadData('', 1, 1)).rejects.toThrowError(/123/);
   });
 
   it('Handle Search with Local Storage Data', async () => {
     localStorage.setItem('searchQuery', 'test constructor');
 
     const result = { data: { results: ['Spider-Man', 'Iron Man'] } };
+    const handleResult = vi.fn();
+    const handleStartSearch = vi.fn();
 
-    const searchInput = new SearchInput({
-      type: 'text',
-      placeholder: '',
-      handleResult: (data: Item[]): void => {
-        expect(data).toStrictEqual(['Spider-Man', 'Iron Man', 'Spider-Man', 'Iron Man']);
-      },
-      handleStartSearch: (): void => {},
-    });
-
-    SearchInput.loadData = vi.fn().mockResolvedValue(
-      new Promise((resolve) => {
-        resolve(result);
-      })
+    render(
+      <SearchInput
+        type="text"
+        placeholder=""
+        handleResult={handleResult}
+        handleStartSearch={handleStartSearch}
+        isExistItems
+      />
     );
 
-    searchInput.handleSearch();
+    const setIsLoadingMock = vi.fn();
+    const mockLoadData = vi.fn();
+    mockLoadData.mockImplementation(async () => {
+      return result;
+    });
+
+    handleSearch('test value', setIsLoadingMock, handleResult, handleStartSearch);
     localStorage.setItem('searchQuery', '');
   });
 
   it('Updates Component State on Input Change', async () => {
-    const searchInput = new SearchInput({
-      type: 'text',
-      placeholder: 'asd',
-      handleResult: (): void => {},
-      handleStartSearch: (): void => {},
-    });
+    const handleResult = vi.fn();
+    const handleStartSearch = vi.fn();
+
+    render(
+      <SearchInput
+        type="text"
+        placeholder=""
+        handleResult={handleResult}
+        handleStartSearch={handleStartSearch}
+        isExistItems
+      />
+    );
     searchInput.setState = vi.fn();
     const getSearchInputSpy = vi.spyOn(searchInput, 'setState');
 

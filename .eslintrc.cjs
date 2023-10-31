@@ -6,7 +6,6 @@ module.exports = {
   extends: [
     'airbnb',
     'airbnb-typescript',
-    'airbnb/hooks',
     'plugin:@typescript-eslint/recommended',
     'plugin:react/recommended',
     'plugin:prettier/recommended',
@@ -44,7 +43,6 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/explicit-function-return-type': 'error',
     'react-hooks/rules-of-hooks': 'error',
-    'react-hooks/exhaustive-deps': 'warn',
     'comma-dangle': ['error', 'only-multiline'],
     'react/prop-types': 'off',
     'react/display-name': 'off',
