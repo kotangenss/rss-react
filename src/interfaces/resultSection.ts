@@ -26,6 +26,6 @@ interface GeneralItem {
 }
 
 export interface ResultSectionProps {
-  items: Item[];
+  items: Item[] | undefined;
   isSearchStart: boolean;
 }

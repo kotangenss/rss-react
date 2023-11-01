@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { NavigateFunction, useLocation, useNavigate } from 'react-router-dom';
 import styles from './resultsSection.module.scss';
 import Button from '../button';
 import { Item, ResultSectionProps } from '../../interfaces/resultSection';
@@ -8,21 +9,23 @@ function scrollToHead(myRef: React.RefObject<HTMLDivElement>): void {
 }
 
 function goToNextPage(
-  myRef: React.RefObject<HTMLDivElement>,
   currentPage: number,
-  setCurrentPage: React.Dispatch<React.SetStateAction<number>>
+  searchParams: URLSearchParams,
+  navigate: NavigateFunction
 ): void {
-  scrollToHead(myRef);
-  setCurrentPage(currentPage + 1);
+  const nextPage = currentPage + 2;
+  searchParams.set('page', nextPage.toString());
+  navigate(`?${searchParams.toString()}`);
 }
 
 function goToPrevPage(
-  myRef: React.RefObject<HTMLDivElement>,
   currentPage: number,
-  setCurrentPage: React.Dispatch<React.SetStateAction<number>>
+  searchParams: URLSearchParams,
+  navigate: NavigateFunction
 ): void {
-  scrollToHead(myRef);
-  setCurrentPage(Math.max(currentPage - 1, 0));
+  const prevPage = currentPage;
+  searchParams.set('page', prevPage.toString());
+  navigate(`?${searchParams.toString()}`);
 }
 
 export default function ResultSection({
@@ -37,15 +40,31 @@ export default function ResultSection({
   const endIndex = startIndex + itemsPerPage;
   const displayedItems = items.slice(startIndex, endIndex);
   let resultHeader;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const searchParams = new URLSearchParams(location.search);
 
   useEffect(() => {
-    if (items !== newItems) {
+    if (newItems && items !== newItems) {
       setItems(newItems);
       setCurrentPage(0);
+      searchParams.set('page', '1');
+    } else if (items && items.length === 0) {
+      searchParams.delete('page');
+    } else {
+      const params = new URLSearchParams(location.search);
+      const page = parseInt(params.get('page') || '1', 10);
+
+      if (!Number.isNaN(page)) {
+        setCurrentPage(page - 1);
+        searchParams.set('page', page.toString());
+      }
     }
 
+    navigate(`?${searchParams.toString()}`);
+
     scrollToHead(myRef);
-  });
+  }, [items, newItems, location.search]);
 
   if (!isLoading) {
     if (items.length === 0) {
@@ -103,7 +122,7 @@ export default function ResultSection({
           <>
             <Button
               name="Prev"
-              onClick={(): void => goToPrevPage(myRef, currentPage, setCurrentPage)}
+              onClick={(): void => goToPrevPage(currentPage, searchParams, navigate)}
               disabled={currentPage === 0}
             />
             {items.length === 0 ? (
@@ -115,7 +134,7 @@ export default function ResultSection({
             )}
             <Button
               name="Next"
-              onClick={(): void => goToNextPage(myRef, currentPage, setCurrentPage)}
+              onClick={(): void => goToNextPage(currentPage, searchParams, navigate)}
               disabled={endIndex >= items.length || items.length === 0}
             />
           </>

@@ -7,7 +7,7 @@ import Button from '../../components/button';
 
 function handleResultInput(
   items: Item[],
-  setItems: React.Dispatch<React.SetStateAction<Item[]>>,
+  setItems: React.Dispatch<React.SetStateAction<Item[] | undefined>>,
   setIsSearchStart: React.Dispatch<React.SetStateAction<boolean>>
 ): void {
   setItems(items);
@@ -23,7 +23,7 @@ function handleButtonClick(setHasError: React.Dispatch<React.SetStateAction<bool
 }
 
 export default function Main(): JSX.Element {
-  const [items, setItems] = useState<Item[]>([]);
+  const [items, setItems] = useState<Item[] | undefined>();
   const [isSearchStart, setIsSearchStart] = useState(false);
   const [hasError, setHasError] = useState(false);
 
@@ -41,7 +41,7 @@ export default function Main(): JSX.Element {
       <SearchSection
         handleResult={(newItems): void => handleResultInput(newItems, setItems, setIsSearchStart)}
         handleStartSearch={(): void => handleStartSearch(setIsSearchStart)}
-        isExistItems={items.length !== 0}
+        isExistItems={!!items}
       />
       <ResultSection items={items} isSearchStart={isSearchStart} />
     </div>

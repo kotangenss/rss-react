@@ -23,6 +23,7 @@ module.exports = {
             devDependencies: true,
           },
         ],
+        'react-router-dom/no-extraneous-import': 'off',
       },
       parserOptions: {
         sourceType: 'script',

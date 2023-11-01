@@ -4,7 +4,7 @@ import Button from '../button';
 import { Result, SearchInputProps } from '../../interfaces/searchInput';
 import { Item } from '../../interfaces/resultSection';
 
-function loadData(value: string, limit: number, offset: number): Promise<Result> {
+export function loadData(value: string, limit: number, offset: number): Promise<Result> {
   const apiUrl = `https://gateway.marvel.com/v1/public/characters?ts=1&limit=${limit}&apikey=fc27ccfdf4f6216977c85675f33f1731&hash=90cbc144b23e3074532d7dda72228c74&nameStartsWith=${value.trim()}&offset=${offset}`;
 
   return fetch(apiUrl).then((response) => {
@@ -27,6 +27,7 @@ function handleRequestsAndResults(
       responses.forEach((response) => {
         characters.push(...response.data.results);
       });
+
       handleResult(characters);
       setIsLoading(false);
     })
@@ -56,7 +57,7 @@ function fetchAllCharacters(
   handleRequestsAndResults(requests, setIsLoading, handleResult);
 }
 
-function handleSearch(
+export function handleSearch(
   inputValue: string,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
   handleResult: (results: Item[]) => void,
