@@ -3,6 +3,7 @@ import { NavigateFunction, useLocation, useNavigate } from 'react-router-dom';
 import styles from './resultsSection.module.scss';
 import Button from '../button';
 import { Item, ResultSectionProps } from '../../interfaces/resultSection';
+import SelectInput from '../selectInput';
 
 function scrollToHead(myRef: React.RefObject<HTMLDivElement>): void {
   myRef.current?.scrollIntoView();
@@ -35,14 +36,22 @@ export default function ResultSection({
   const myRef = React.createRef<HTMLDivElement>();
   const [currentPage, setCurrentPage] = useState(0);
   const [items, setItems] = useState<Item[]>([]);
-  const itemsPerPage = 3;
-  const startIndex = currentPage * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  const [selectedItemCount, setSelectedItemCount] = useState(3);
+  const startIndex = currentPage * selectedItemCount;
+  const endIndex = startIndex + selectedItemCount;
   const displayedItems = items.slice(startIndex, endIndex);
-  let resultHeader;
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
+  let resultHeader;
+
+  function handleItemCountChange(event: React.ChangeEvent<HTMLSelectElement>): void {
+    const newSelectedItemCount = parseInt(event.target.value, 10);
+    setSelectedItemCount(newSelectedItemCount);
+    setCurrentPage(0);
+    searchParams.set('page', '1');
+    navigate(`?${searchParams.toString()}`);
+  }
 
   useEffect(() => {
     if (newItems && items !== newItems) {
@@ -79,6 +88,11 @@ export default function ResultSection({
   return (
     <div ref={myRef} className={styles['result-section']}>
       {resultHeader}
+      <SelectInput
+        onSelectChange={(event): void => handleItemCountChange(event)}
+        options={['3', '6', '9']}
+      />
+
       <div className={styles['result-container']}>
         {isLoading ? (
           <div className={styles['loading-container']}>
@@ -129,7 +143,8 @@ export default function ResultSection({
               <p>No pages</p>
             ) : (
               <p>
-                Page&nbsp;{currentPage + 1}&nbsp;of&nbsp;{Math.ceil(items.length / itemsPerPage)}
+                Page&nbsp;{currentPage + 1}&nbsp;of&nbsp;
+                {Math.ceil(items.length / selectedItemCount)}
               </p>
             )}
             <Button
