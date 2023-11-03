@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { NavigateFunction, useLocation, useNavigate } from 'react-router-dom';
+import { NavigateFunction, useLocation, useNavigate, Link } from 'react-router-dom';
 import styles from './resultsSection.module.scss';
 import Button from '../button';
 import { Item, ResultSectionProps } from '../../interfaces/resultSection';
@@ -29,9 +29,24 @@ function goToPrevPage(
   navigate(`?${searchParams.toString()}`);
 }
 
+function handleItemCountChange(
+  event: React.ChangeEvent<HTMLSelectElement>,
+  setSelectedItemCount: React.Dispatch<React.SetStateAction<number>>,
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>,
+  searchParams: URLSearchParams,
+  navigate: NavigateFunction
+): void {
+  const newSelectedItemCount = parseInt(event.target.value, 10);
+  setSelectedItemCount(newSelectedItemCount);
+  setCurrentPage(0);
+  searchParams.set('page', '1');
+  navigate(`?${searchParams.toString()}`);
+}
+
 export default function ResultSection({
   items: newItems,
   isSearchStart: isLoading,
+  haddleUpdateDetail,
 }: ResultSectionProps): JSX.Element {
   const myRef = React.createRef<HTMLDivElement>();
   const [currentPage, setCurrentPage] = useState(0);
@@ -45,21 +60,29 @@ export default function ResultSection({
   const searchParams = new URLSearchParams(location.search);
   let resultHeader;
 
-  function handleItemCountChange(event: React.ChangeEvent<HTMLSelectElement>): void {
-    const newSelectedItemCount = parseInt(event.target.value, 10);
-    setSelectedItemCount(newSelectedItemCount);
-    setCurrentPage(0);
-    searchParams.set('page', '1');
-    navigate(`?${searchParams.toString()}`);
-  }
-
   useEffect(() => {
+    if (searchParams.has('details')) {
+      const activeItem: Item | undefined = items.find(
+        (item: Item) => String(item.id) === searchParams.get('details')
+      );
+
+      if (activeItem) {
+        haddleUpdateDetail(activeItem);
+      } else {
+        haddleUpdateDetail(null);
+      }
+    } else if (!searchParams.get('details')) {
+      haddleUpdateDetail(null);
+    }
+
     if (newItems && items !== newItems) {
       setItems(newItems);
       setCurrentPage(0);
       searchParams.set('page', '1');
     } else if (items && items.length === 0) {
       searchParams.delete('page');
+      searchParams.delete('details');
+      searchParams.delete('name');
     } else {
       const params = new URLSearchParams(location.search);
       const page = parseInt(params.get('page') || '1', 10);
@@ -89,7 +112,9 @@ export default function ResultSection({
     <div ref={myRef} className={styles['result-section']}>
       {resultHeader}
       <SelectInput
-        onSelectChange={(event): void => handleItemCountChange(event)}
+        onSelectChange={(event): void =>
+          handleItemCountChange(event, setSelectedItemCount, setCurrentPage, searchParams, navigate)
+        }
         options={['3', '6', '9']}
       />
 
@@ -101,31 +126,23 @@ export default function ResultSection({
           </div>
         ) : (
           displayedItems.map((item) => (
-            <div key={`item.name-item.id-${Math.random()}`} className={styles['result-item']}>
+            <Link
+              to={`/?page=${currentPage + 1}&details=${item.id}&name=${item.name}`}
+              key={`item.name-item.id-${Math.random()}`}
+              className={styles['result-item']}
+            >
               <h3>{item.name}</h3>
               <div className={styles['item-img']}>
                 <img
                   src={`${item.thumbnail.path}/portrait_uncanny.${item.thumbnail.extension}`}
-                  alt="hero"
+                  alt={item.name}
                 />
               </div>
               <h4 id={styles['description-title']}>Description</h4>
-              <p className={styles['item-description']}>{item.description}</p>
-              <ul className={styles['item-comics']}>
-                <h4>Comics</h4>
-                {item.comics.items.map((comicItem) => (
-                  <li key={`comics-${comicItem.name}-${item.id}-${Math.random()}`}>
-                    {comicItem.name}
-                  </li>
-                ))}
-              </ul>
-              <ul className={styles['item-series']}>
-                <h4>Series</h4>
-                {item.series.items.map((seriesItem) => (
-                  <li key={`series-${seriesItem.name}-${Math.random()}`}>{seriesItem.name}</li>
-                ))}
-              </ul>
-            </div>
+              <p className={styles['item-description']}>
+                {item.description ? item.description : 'No description'}
+              </p>
+            </Link>
           ))
         )}
       </div>

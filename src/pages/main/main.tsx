@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { NavigateFunction, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import SearchSection from '../../components/searchSection';
 import styles from './main.module.scss';
 import ResultSection from '../../components/resultSection';
 import { Item } from '../../interfaces/resultSection';
 import Button from '../../components/button';
+import { DetailContext } from '../../components/detailContext';
 
 function handleResultInput(
   items: Item[],
@@ -22,10 +24,22 @@ function handleButtonClick(setHasError: React.Dispatch<React.SetStateAction<bool
   setHasError(true);
 }
 
+function handleClickOnMain(searchParams: URLSearchParams, navigate: NavigateFunction): void {
+  if (searchParams.has('details')) {
+    searchParams.delete('details');
+    searchParams.delete('name');
+    navigate(`?${searchParams.toString()}`);
+  }
+}
+
 export default function Main(): JSX.Element {
   const [items, setItems] = useState<Item[] | undefined>();
+  const [itemForDetail, setItemForDetail] = useState<Item | null>(null);
   const [isSearchStart, setIsSearchStart] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const searchParams = new URLSearchParams(location.search);
 
   if (hasError) {
     throw new Error('Throw an error after clicking a button');
@@ -33,17 +47,32 @@ export default function Main(): JSX.Element {
 
   return (
     <div className={styles.container}>
-      <Button
-        className="simulate-button"
-        name="Simulate Error"
-        onClick={(): void => handleButtonClick(setHasError)}
-      />
-      <SearchSection
-        handleResult={(newItems): void => handleResultInput(newItems, setItems, setIsSearchStart)}
-        handleStartSearch={(): void => handleStartSearch(setIsSearchStart)}
-        isExistItems={!!items}
-      />
-      <ResultSection items={items} isSearchStart={isSearchStart} />
+      <DetailContext.Provider value={itemForDetail}>
+        <div
+          className={styles.main}
+          onClick={(): void => handleClickOnMain(searchParams, navigate)}
+          aria-hidden="true"
+        >
+          <Button
+            className="simulate-button"
+            name="Simulate Error"
+            onClick={(): void => handleButtonClick(setHasError)}
+          />
+          <SearchSection
+            handleResult={(newItems): void =>
+              handleResultInput(newItems, setItems, setIsSearchStart)
+            }
+            handleStartSearch={(): void => handleStartSearch(setIsSearchStart)}
+            isExistItems={!!items}
+          />
+          <ResultSection
+            items={items}
+            isSearchStart={isSearchStart}
+            haddleUpdateDetail={(item: Item | null): void => setItemForDetail(item)}
+          />
+        </div>
+        <Outlet />
+      </DetailContext.Provider>
     </div>
   );
 }

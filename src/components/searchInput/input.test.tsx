@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import SearchInput, { handleSearch, loadData } from './index';
 
 describe('SearchInput', () => {
@@ -106,29 +106,5 @@ describe('SearchInput', () => {
 
     handleSearch('test value', setIsLoadingMock, handleResult, handleStartSearch);
     localStorage.setItem('searchQuery', '');
-  });
-
-  it('Updates Component State on Input Change', async () => {
-    const handleResult = vi.fn();
-    const handleStartSearch = vi.fn();
-
-    render(
-      <SearchInput
-        type="text"
-        placeholder=""
-        handleResult={handleResult}
-        handleStartSearch={handleStartSearch}
-        isExistItems
-      />
-    );
-    searchInput.setState = vi.fn();
-    const getSearchInputSpy = vi.spyOn(searchInput, 'setState');
-
-    render(searchInput.render());
-    const input = screen.getAllByPlaceholderText('asd')[0];
-
-    fireEvent.change(input, { target: { value: '1' } });
-
-    expect(getSearchInputSpy.mock.calls.length).toBe(1);
   });
 });

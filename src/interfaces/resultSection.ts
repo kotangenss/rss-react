@@ -19,7 +19,7 @@ interface GeneralItems {
   items: GeneralItem[];
 }
 
-interface GeneralItem {
+export interface GeneralItem {
   resourceURI: string;
   name: string;
   type?: string;
@@ -28,4 +28,5 @@ interface GeneralItem {
 export interface ResultSectionProps {
   items: Item[] | undefined;
   isSearchStart: boolean;
+  haddleUpdateDetail: (item: Item | null) => void;
 }
