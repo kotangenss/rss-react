@@ -43,6 +43,25 @@ function handleItemCountChange(
   navigate(`?${searchParams.toString()}`);
 }
 
+function getActiveItem(searchParams: URLSearchParams, items: Item[]): Item | null {
+  if (searchParams.has('details')) {
+    const activeItem: Item | undefined = items.find(
+      (item: Item) => String(item.id) === searchParams.get('details')
+    );
+
+    return activeItem || null;
+  }
+  return null;
+}
+
+function getPage(searchParams: URLSearchParams): number {
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  if (Number.isNaN(page)) {
+    return 1;
+  }
+  return page;
+}
+
 export default function ResultSection({
   items: newItems,
   isSearchStart: isLoading,
@@ -58,22 +77,48 @@ export default function ResultSection({
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
+  const itemList = displayedItems.map((item) => (
+    <Link
+      to={`/?page=${currentPage + 1}&details=${item.id}&name=${item.name}`}
+      key={`item.name-item.id-${Math.random()}`}
+      className={styles['result-item']}
+    >
+      <h3>{item.name}</h3>
+      <div className={styles['item-img']}>
+        <img
+          src={`${item.thumbnail.path}/portrait_uncanny.${item.thumbnail.extension}`}
+          alt={item.name}
+        />
+      </div>
+      <h4 id={styles['description-title']}>Description</h4>
+      <p className={styles['item-description']}>
+        {item.description ? item.description : 'No description'}
+      </p>
+    </Link>
+  ));
+  const pagesnumberOfPages =
+    items.length === 0 ? (
+      <p>No pages</p>
+    ) : (
+      <p>
+        Page&nbsp;{currentPage + 1}&nbsp;of&nbsp;
+        {Math.ceil(items.length / selectedItemCount)}
+      </p>
+    );
   let resultHeader;
 
-  useEffect(() => {
-    if (searchParams.has('details')) {
-      const activeItem: Item | undefined = items.find(
-        (item: Item) => String(item.id) === searchParams.get('details')
-      );
+  if (isLoading) {
+    resultHeader = null;
+  } else if (items.length === 0) {
+    resultHeader = <h2>Nothing found</h2>;
+  } else {
+    resultHeader = <h2>Results ({items.length})</h2>;
+  }
 
-      if (activeItem) {
-        haddleUpdateDetail(activeItem);
-      } else {
-        haddleUpdateDetail(null);
-      }
-    } else if (!searchParams.get('details')) {
-      haddleUpdateDetail(null);
-    }
+  useEffect(() => {
+    const activeItem = getActiveItem(searchParams, items);
+
+    haddleUpdateDetail(activeItem);
 
     if (newItems && items !== newItems) {
       setItems(newItems);
@@ -84,29 +129,16 @@ export default function ResultSection({
       searchParams.delete('details');
       searchParams.delete('name');
     } else {
-      const params = new URLSearchParams(location.search);
-      const page = parseInt(params.get('page') || '1', 10);
+      const page = getPage(searchParams);
 
-      if (!Number.isNaN(page)) {
-        setCurrentPage(page - 1);
-        searchParams.set('page', page.toString());
-      }
+      setCurrentPage(page - 1);
+      searchParams.set('page', page.toString());
     }
 
     navigate(`?${searchParams.toString()}`);
 
     scrollToHead(myRef);
   }, [items, newItems, location.search]);
-
-  if (!isLoading) {
-    if (items.length === 0) {
-      resultHeader = <h2>Nothing found</h2>;
-    } else {
-      resultHeader = <h2>Results ({items.length})</h2>;
-    }
-  } else {
-    resultHeader = null;
-  }
 
   return (
     <div ref={myRef} className={styles['result-section']}>
@@ -117,7 +149,6 @@ export default function ResultSection({
         }
         options={['3', '6', '9']}
       />
-
       <div className={styles['result-container']}>
         {isLoading ? (
           <div className={styles['loading-container']}>
@@ -125,25 +156,7 @@ export default function ResultSection({
             <p>Please wait. Loading in progress</p>
           </div>
         ) : (
-          displayedItems.map((item) => (
-            <Link
-              to={`/?page=${currentPage + 1}&details=${item.id}&name=${item.name}`}
-              key={`item.name-item.id-${Math.random()}`}
-              className={styles['result-item']}
-            >
-              <h3>{item.name}</h3>
-              <div className={styles['item-img']}>
-                <img
-                  src={`${item.thumbnail.path}/portrait_uncanny.${item.thumbnail.extension}`}
-                  alt={item.name}
-                />
-              </div>
-              <h4 id={styles['description-title']}>Description</h4>
-              <p className={styles['item-description']}>
-                {item.description ? item.description : 'No description'}
-              </p>
-            </Link>
-          ))
+          itemList
         )}
       </div>
       <div className={styles['result-pagination']}>
@@ -156,14 +169,7 @@ export default function ResultSection({
               onClick={(): void => goToPrevPage(currentPage, searchParams, navigate)}
               disabled={currentPage === 0}
             />
-            {items.length === 0 ? (
-              <p>No pages</p>
-            ) : (
-              <p>
-                Page&nbsp;{currentPage + 1}&nbsp;of&nbsp;
-                {Math.ceil(items.length / selectedItemCount)}
-              </p>
-            )}
+            {pagesnumberOfPages}
             <Button
               name="Next"
               onClick={(): void => goToNextPage(currentPage, searchParams, navigate)}
