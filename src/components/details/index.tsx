@@ -1,9 +1,11 @@
-import { useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { NavigateFunction, useLocation, useNavigate } from 'react-router-dom';
 import { GeneralItem, Item } from '../../interfaces/resultSection';
 import styles from './details.module.scss';
-import { DetailContext } from '../detailContext';
 import Button from '../button';
+import { Result } from '../../interfaces/searchInput';
+import Loader from '../loader';
+import handleApiUrl from '../../helpers/handleApiUrl';
 
 function handleCloseClick(searchParams: URLSearchParams, navigate: NavigateFunction): void {
   searchParams.delete('details');
@@ -11,32 +13,73 @@ function handleCloseClick(searchParams: URLSearchParams, navigate: NavigateFunct
   navigate(`?${searchParams.toString()}`);
 }
 
+export function getCharacter(itemId: number): Promise<Result> {
+  const apiUrl = `https://gateway.marvel.com/v1/public/characters/${itemId}?ts=1&apikey=fc27ccfdf4f6216977c85675f33f1731&hash=90cbc144b23e3074532d7dda72228c74`;
+
+  return handleApiUrl(apiUrl);
+}
+
+function getListItems(
+  itemId: number | undefined,
+  items: GeneralItem[] | undefined,
+  defaultValue: string
+): string | JSX.Element[] {
+  if (items && items.length > 0) {
+    return items.map((item: GeneralItem) => (
+      <li key={`comics-${item.name}-${itemId}-${Math.random()}`}>{item.name}</li>
+    ));
+  }
+
+  return defaultValue;
+}
+
 export default function Details(): JSX.Element {
-  const item: Item | null = useContext(DetailContext);
+  const [item, setItem] = useState<Item | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
-  const comicsList =
-    item && item.comics.items.length > 0
-      ? item.comics.items.map((comicItem: GeneralItem) => (
-          <li key={`comics-${comicItem.name}-${item.id}-${Math.random()}`}>{comicItem.name}</li>
-        ))
-      : 'No comics';
+  const itemId = searchParams.get('details');
+  const comicsList = getListItems(item?.id, item?.comics.items, 'No comics');
+  const seriesList = getListItems(item?.id, item?.series.items, 'No series');
 
-  const seriesList =
-    item && item.series.items.length > 0
-      ? item.series.items.map((seriesItem: GeneralItem) => (
-          <li key={`comics-${seriesItem.name}-${item.id}-${Math.random()}`}>{seriesItem.name}</li>
-        ))
-      : 'No series';
+  useEffect(() => {
+    if (itemId) {
+      setIsLoading(true);
+      getCharacter(Number(itemId))
+        .then((response) => {
+          setItem(response.data.results[0]);
+          setIsLoading(false);
+        })
+        .catch((error: Error) => {
+          searchParams.delete('details');
+          searchParams.delete('name');
+          setIsLoading(false);
+          console.error('Error:', error);
+          navigate(`?${searchParams.toString()}`);
+        });
+    } else {
+      setItem(null);
+      setIsLoading(false);
+    }
+  }, [itemId]);
 
-  if (!item) return <div />;
+  if (isLoading) {
+    window.scrollTo(0, 0);
+    return (
+      <div className={styles.container}>
+        <Loader size="m" />
+      </div>
+    );
+  }
+
+  if (!item) return <span />;
 
   return (
     <div className={styles.container}>
       <h2>Details</h2>
       <h3>
-        <span>{item.name}</span> ({item.id})
+        {item.name} <span>({item.id})</span>
       </h3>
       <p>{item.description}</p>
       <img

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import SearchInput, { handleSearch, loadData } from './index';
+import SearchInput, { getCharactersList, handleSearch } from './index';
 
 describe('SearchInput', () => {
   it('Renders the input field and button with the provided props', () => {
@@ -67,7 +67,7 @@ describe('SearchInput', () => {
       json: () => Promise.resolve(result),
     });
 
-    const searchData = await loadData('', 1, 1);
+    const searchData = await getCharactersList('', 1, 1);
 
     expect(searchData).toStrictEqual(result);
   });
@@ -78,7 +78,7 @@ describe('SearchInput', () => {
       status: 123,
     });
 
-    expect(loadData('', 1, 1)).rejects.toThrowError(/123/);
+    expect(getCharactersList('', 1, 1)).rejects.toThrowError(/123/);
   });
 
   it('Handle Search with Local Storage Data', async () => {

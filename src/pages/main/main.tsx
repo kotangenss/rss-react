@@ -5,7 +5,6 @@ import styles from './main.module.scss';
 import ResultSection from '../../components/resultSection';
 import { Item } from '../../interfaces/resultSection';
 import Button from '../../components/button';
-import { DetailContext } from '../../components/detailContext';
 
 function handleResultInput(
   items: Item[],
@@ -34,7 +33,6 @@ function handleClickOnMain(searchParams: URLSearchParams, navigate: NavigateFunc
 
 export default function Main(): JSX.Element {
   const [items, setItems] = useState<Item[] | undefined>();
-  const [itemForDetail, setItemForDetail] = useState<Item | null>(null);
   const [isSearchStart, setIsSearchStart] = useState(false);
   const [hasError, setHasError] = useState(false);
   const location = useLocation();
@@ -47,32 +45,24 @@ export default function Main(): JSX.Element {
 
   return (
     <div className={styles.container}>
-      <DetailContext.Provider value={itemForDetail}>
-        <div
-          className={styles.main}
-          onClick={(): void => handleClickOnMain(searchParams, navigate)}
-          aria-hidden="true"
-        >
-          <Button
-            className="simulate-button"
-            name="Simulate Error"
-            onClick={(): void => handleButtonClick(setHasError)}
-          />
-          <SearchSection
-            handleResult={(newItems): void =>
-              handleResultInput(newItems, setItems, setIsSearchStart)
-            }
-            handleStartSearch={(): void => handleStartSearch(setIsSearchStart)}
-            isExistItems={!!items}
-          />
-          <ResultSection
-            items={items}
-            isSearchStart={isSearchStart}
-            haddleUpdateDetail={(item: Item | null): void => setItemForDetail(item)}
-          />
-        </div>
-        <Outlet />
-      </DetailContext.Provider>
+      <div
+        className={styles.main}
+        onClick={(): void => handleClickOnMain(searchParams, navigate)}
+        aria-hidden="true"
+      >
+        <Button
+          className="simulate-button"
+          name="Simulate Error"
+          onClick={(): void => handleButtonClick(setHasError)}
+        />
+        <SearchSection
+          handleResult={(newItems): void => handleResultInput(newItems, setItems, setIsSearchStart)}
+          handleStartSearch={(): void => handleStartSearch(setIsSearchStart)}
+          isExistItems={!!items}
+        />
+        <ResultSection items={items} isSearchStart={isSearchStart} />
+      </div>
+      <Outlet />
     </div>
   );
 }

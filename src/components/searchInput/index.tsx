@@ -3,16 +3,12 @@ import styles from './input.module.scss';
 import Button from '../button';
 import { Result, SearchInputProps } from '../../interfaces/searchInput';
 import { Item } from '../../interfaces/resultSection';
+import handleApiUrl from '../../helpers/handleApiUrl';
 
-export function loadData(value: string, limit: number, offset: number): Promise<Result> {
+export function getCharactersList(value: string, limit: number, offset: number): Promise<Result> {
   const apiUrl = `https://gateway.marvel.com/v1/public/characters?ts=1&limit=${limit}&apikey=fc27ccfdf4f6216977c85675f33f1731&hash=90cbc144b23e3074532d7dda72228c74&nameStartsWith=${value.trim()}&offset=${offset}`;
 
-  return fetch(apiUrl).then((response) => {
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
-    }
-    return response.json();
-  });
+  return handleApiUrl(apiUrl);
 }
 
 function handleRequestsAndResults(
@@ -51,7 +47,7 @@ function fetchAllCharacters(
 
   for (let letter = 'a'.charCodeAt(0); letter <= 'z'.charCodeAt(0); letter += 1) {
     const letterChar = String.fromCharCode(letter);
-    requests.push(loadData(letterChar, limit, offset));
+    requests.push(getCharactersList(letterChar, limit, offset));
   }
 
   handleRequestsAndResults(requests, setIsLoading, handleResult);
@@ -79,7 +75,7 @@ export function handleSearch(
   handleStartSearch();
 
   for (let offset = 0; offset < totalCharacters; offset += limit) {
-    requests.push(loadData(trimmedInputValue, limit, offset));
+    requests.push(getCharactersList(trimmedInputValue, limit, offset));
   }
 
   handleRequestsAndResults(requests, setIsLoading, handleResult);

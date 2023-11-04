@@ -4,6 +4,7 @@ import styles from './resultsSection.module.scss';
 import Button from '../button';
 import { Item, ResultSectionProps } from '../../interfaces/resultSection';
 import SelectInput from '../selectInput';
+import Loader from '../loader';
 
 function scrollToHead(myRef: React.RefObject<HTMLDivElement>): void {
   myRef.current?.scrollIntoView();
@@ -43,17 +44,6 @@ function handleItemCountChange(
   navigate(`?${searchParams.toString()}`);
 }
 
-function getActiveItem(searchParams: URLSearchParams, items: Item[]): Item | null {
-  if (searchParams.has('details')) {
-    const activeItem: Item | undefined = items.find(
-      (item: Item) => String(item.id) === searchParams.get('details')
-    );
-
-    return activeItem || null;
-  }
-  return null;
-}
-
 function getPage(searchParams: URLSearchParams): number {
   const page = parseInt(searchParams.get('page') || '1', 10);
   if (Number.isNaN(page)) {
@@ -65,7 +55,6 @@ function getPage(searchParams: URLSearchParams): number {
 export default function ResultSection({
   items: newItems,
   isSearchStart: isLoading,
-  haddleUpdateDetail,
 }: ResultSectionProps): JSX.Element {
   const myRef = React.createRef<HTMLDivElement>();
   const [currentPage, setCurrentPage] = useState(0);
@@ -116,18 +105,12 @@ export default function ResultSection({
   }
 
   useEffect(() => {
-    const activeItem = getActiveItem(searchParams, items);
-
-    haddleUpdateDetail(activeItem);
-
     if (newItems && items !== newItems) {
       setItems(newItems);
       setCurrentPage(0);
       searchParams.set('page', '1');
     } else if (items && items.length === 0) {
       searchParams.delete('page');
-      searchParams.delete('details');
-      searchParams.delete('name');
     } else {
       const page = getPage(searchParams);
 
@@ -149,16 +132,7 @@ export default function ResultSection({
         }
         options={['3', '6', '9']}
       />
-      <div className={styles['result-container']}>
-        {isLoading ? (
-          <div className={styles['loading-container']}>
-            <div className={styles['loading-icon']} />
-            <p>Please wait. Loading in progress</p>
-          </div>
-        ) : (
-          itemList
-        )}
-      </div>
+      <div className={styles['result-container']}>{isLoading ? <Loader size="s" /> : itemList}</div>
       <div className={styles['result-pagination']}>
         {isLoading ? (
           <p />

@@ -28,5 +28,4 @@ export interface GeneralItem {
 export interface ResultSectionProps {
   items: Item[] | undefined;
   isSearchStart: boolean;
-  haddleUpdateDetail: (item: Item | null) => void;
 }
