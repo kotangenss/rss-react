@@ -1,57 +1,68 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { NavigateFunction, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import SearchSection from '../../components/searchSection';
 import styles from './main.module.scss';
 import ResultSection from '../../components/resultSection';
 import { Item } from '../../interfaces/resultSection';
 import Button from '../../components/button';
 
-export default class Main extends React.Component<
-  object,
-  { items: Item[]; hasError: boolean; isSearchStart: boolean }
-> {
-  constructor(props: object) {
-    super(props);
-    this.state = {
-      items: [],
-      hasError: false,
-      isSearchStart: false,
-    };
-    this.handleResultInput = this.handleResultInput.bind(this);
-    this.handleStartSearch = this.handleStartSearch.bind(this);
+function handleResultInput(
+  items: Item[],
+  setItems: React.Dispatch<React.SetStateAction<Item[] | undefined>>,
+  setIsSearchStart: React.Dispatch<React.SetStateAction<boolean>>
+): void {
+  setItems(items);
+  setIsSearchStart(false);
+}
+
+function handleStartSearch(setIsSearchStart: React.Dispatch<React.SetStateAction<boolean>>): void {
+  setIsSearchStart(true);
+}
+
+function handleButtonClick(setHasError: React.Dispatch<React.SetStateAction<boolean>>): void {
+  setHasError(true);
+}
+
+function handleClickOnMain(searchParams: URLSearchParams, navigate: NavigateFunction): void {
+  if (searchParams.has('details')) {
+    searchParams.delete('details');
+    searchParams.delete('name');
+    navigate(`?${searchParams.toString()}`);
+  }
+}
+
+export default function Main(): JSX.Element {
+  const [items, setItems] = useState<Item[] | undefined>();
+  const [isSearchStart, setIsSearchStart] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const searchParams = new URLSearchParams(location.search);
+
+  if (hasError) {
+    throw new Error('Throw an error after clicking a button');
   }
 
-  handleResultInput(items: Item[]): void {
-    this.setState({ items, isSearchStart: false });
-  }
-
-  handleStartSearch(): void {
-    this.setState({ isSearchStart: true });
-  }
-
-  handleButtonClick = (): void => {
-    this.setState({ hasError: true });
-  };
-
-  render(): JSX.Element {
-    const { items, hasError, isSearchStart } = this.state;
-
-    if (hasError) {
-      throw new Error('Throw an error after clicking a button');
-    }
-
-    return (
-      <div className={styles.container}>
+  return (
+    <div className={styles.container}>
+      <div
+        className={styles.main}
+        onClick={(): void => handleClickOnMain(searchParams, navigate)}
+        aria-hidden="true"
+      >
         <Button
           className="simulate-button"
           name="Simulate Error"
-          onClick={this.handleButtonClick}
+          onClick={(): void => handleButtonClick(setHasError)}
         />
         <SearchSection
-          handleResult={this.handleResultInput}
-          handleStartSearch={this.handleStartSearch}
+          handleResult={(newItems): void => handleResultInput(newItems, setItems, setIsSearchStart)}
+          handleStartSearch={(): void => handleStartSearch(setIsSearchStart)}
+          isExistItems={!!items}
         />
         <ResultSection items={items} isSearchStart={isSearchStart} />
       </div>
-    );
-  }
+      <Outlet />
+    </div>
+  );
 }

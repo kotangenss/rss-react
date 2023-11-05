@@ -5,11 +5,7 @@ export interface SearchInputProps {
   placeholder: string;
   handleResult: (results: Item[]) => void;
   handleStartSearch: () => void;
-}
-
-export interface SearchInputState {
-  inputValue: string;
-  isLoading: boolean;
+  isExistItems: boolean;
 }
 
 export interface Result {

@@ -1,0 +1,22 @@
+@import '../../sass/variables.scss';
+
+.select-container {
+  display: flex;
+  align-content: center;
+  margin-bottom: 50px;
+
+  select {
+    width: 60px;
+    margin-left: 10px;
+    background: $blueNormal;
+    padding: 2px 0 2px 20px;
+    color: $white;
+    font-size: 1em;
+    border: 0;
+    border-radius: 4px;
+
+    &:focus {
+      outline: 0;
+    }
+  }
+}

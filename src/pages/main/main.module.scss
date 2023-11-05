@@ -13,10 +13,9 @@ button {
 
 .container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
-  width: 1320px;
+  width: 80%;
   margin: 0 auto;
   padding: 0 25px;
 }
@@ -36,4 +35,12 @@ h4 {
   text-align: center;
   font-size: 5vw;
   margin: 130px 0 10px;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin: 0 auto;
 }

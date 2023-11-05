@@ -19,20 +19,13 @@ interface GeneralItems {
   items: GeneralItem[];
 }
 
-interface GeneralItem {
+export interface GeneralItem {
   resourceURI: string;
   name: string;
   type?: string;
 }
 
 export interface ResultSectionProps {
-  items: Item[];
+  items: Item[] | undefined;
   isSearchStart: boolean;
-}
-
-export interface ResultSectionState {
-  currentPage: number;
-  items: Item[];
-  myRef: React.RefObject<HTMLDivElement>;
-  isLoading?: boolean;
 }
