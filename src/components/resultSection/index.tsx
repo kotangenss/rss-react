@@ -58,15 +58,15 @@ export default function ResultSection({
 }: ResultSectionProps): JSX.Element {
   const myRef = React.createRef<HTMLDivElement>();
   const [currentPage, setCurrentPage] = useState(0);
-  const [items, setItems] = useState<Item[]>([]);
+  const [items, setItems] = useState<Item[] | undefined>();
   const [selectedItemCount, setSelectedItemCount] = useState(3);
   const startIndex = currentPage * selectedItemCount;
   const endIndex = startIndex + selectedItemCount;
-  const displayedItems = items.slice(startIndex, endIndex);
+  const displayedItems = items?.slice(startIndex, endIndex);
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
-  const itemList = displayedItems.map((item) => (
+  const itemList = displayedItems?.map((item) => (
     <Link
       to={`/?page=${currentPage + 1}&details=${item.id}&name=${item.name}`}
       key={`item.name-item.id-${Math.random()}`}
@@ -85,23 +85,24 @@ export default function ResultSection({
       </p>
     </Link>
   ));
+  const itemCounts = items?.length || 0;
   const pagesnumberOfPages =
-    items.length === 0 ? (
+    itemCounts === 0 ? (
       <p>No pages</p>
     ) : (
       <p>
         Page&nbsp;{currentPage + 1}&nbsp;of&nbsp;
-        {Math.ceil(items.length / selectedItemCount)}
+        {Math.ceil(itemCounts / selectedItemCount)}
       </p>
     );
   let resultHeader;
 
   if (isLoading) {
     resultHeader = null;
-  } else if (items.length === 0) {
+  } else if (itemCounts === 0) {
     resultHeader = <h2>Nothing found</h2>;
   } else {
-    resultHeader = <h2>Results ({items.length})</h2>;
+    resultHeader = <h2>Results ({itemCounts})</h2>;
   }
 
   useEffect(() => {
@@ -109,16 +110,14 @@ export default function ResultSection({
       setItems(newItems);
       setCurrentPage(0);
       searchParams.set('page', '1');
+      navigate(`?${searchParams.toString()}`);
     } else if (items && items.length === 0) {
       searchParams.delete('page');
-    } else {
+      navigate(`?${searchParams.toString()}`);
+    } else if (items) {
       const page = getPage(searchParams);
-
       setCurrentPage(page - 1);
-      searchParams.set('page', page.toString());
     }
-
-    navigate(`?${searchParams.toString()}`);
 
     scrollToHead(myRef);
   }, [items, newItems, location.search]);
@@ -147,7 +146,7 @@ export default function ResultSection({
             <Button
               name="Next"
               onClick={(): void => goToNextPage(currentPage, searchParams, navigate)}
-              disabled={endIndex >= items.length || items.length === 0}
+              disabled={endIndex >= itemCounts || itemCounts === 0}
             />
           </>
         )}

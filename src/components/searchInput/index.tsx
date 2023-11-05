@@ -62,11 +62,10 @@ export function handleSearch(
   const limit = 100;
   const totalCharacters = 200;
   const requests = [];
-
   const trimmedInputValue = inputValue.trim();
+
   if (trimmedInputValue === '') {
     handleResult([]);
-    setIsLoading(false);
     return;
   }
 
@@ -99,7 +98,7 @@ export default function SearchInput({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!isExistItems) {
+    if (!isExistItems && !isLoading) {
       if (inputValue !== '') {
         handleSearch(inputValue, setIsLoading, handleResult, handleStartSearch);
       } else {
