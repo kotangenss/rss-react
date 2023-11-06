@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import styles from './input.module.scss';
 import Button from '../button';
 import { Result, SearchInputProps } from '../../interfaces/searchInput';
 import { Item } from '../../interfaces/resultSection';
 import handleApiUrl from '../../helpers/handleApiUrl';
+import { Context, InputValueContext, IsLoadingContext } from '../contexts';
 
 export function getCharactersList(value: string, limit: number, offset: number): Promise<Result> {
-  const apiUrl = `https://gateway.marvel.com/v1/public/characters?ts=1&limit=${limit}&apikey=fc27ccfdf4f6216977c85675f33f1731&hash=90cbc144b23e3074532d7dda72228c74&nameStartsWith=${value.trim()}&offset=${offset}`;
+  const key = import.meta.env.VITE_API_KEY;
+  const hash = import.meta.env.VITE_HASH;
+  const apiUrl = `https://gateway.marvel.com/v1/public/characters?ts=1&limit=${limit}&apikey=${key}&hash=${hash}&nameStartsWith=${value.trim()}&offset=${offset}`;
 
   return handleApiUrl(apiUrl);
 }
@@ -14,7 +17,7 @@ export function getCharactersList(value: string, limit: number, offset: number):
 function handleRequestsAndResults(
   requests: Promise<Result>[],
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  handleResult: (results: Item[]) => void
+  setItems: (results: Item[]) => void
 ): void {
   Promise.all(requests)
     .then((responses) => {
@@ -24,7 +27,7 @@ function handleRequestsAndResults(
         characters.push(...response.data.results);
       });
 
-      handleResult(characters);
+      setItems(characters);
       setIsLoading(false);
     })
     .catch((error) => {
@@ -35,29 +38,26 @@ function handleRequestsAndResults(
 
 function fetchAllCharacters(
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  handleResult: (results: Item[]) => void,
-  handleStartSearch: () => void
+  setItems: (results: Item[]) => void
 ): void {
   const limit = 100;
   const offset = 0;
   const requests = [];
 
   setIsLoading(true);
-  handleStartSearch();
 
   for (let letter = 'a'.charCodeAt(0); letter <= 'z'.charCodeAt(0); letter += 1) {
     const letterChar = String.fromCharCode(letter);
     requests.push(getCharactersList(letterChar, limit, offset));
   }
 
-  handleRequestsAndResults(requests, setIsLoading, handleResult);
+  handleRequestsAndResults(requests, setIsLoading, setItems);
 }
 
 export function handleSearch(
   inputValue: string,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  handleResult: (results: Item[]) => void,
-  handleStartSearch: () => void
+  setItems: (results: Item[]) => void
 ): void {
   const limit = 100;
   const totalCharacters = 200;
@@ -65,19 +65,18 @@ export function handleSearch(
   const trimmedInputValue = inputValue.trim();
 
   if (trimmedInputValue === '') {
-    handleResult([]);
+    setItems([]);
     return;
   }
 
   localStorage.setItem('searchQuery', trimmedInputValue);
   setIsLoading(true);
-  handleStartSearch();
 
   for (let offset = 0; offset < totalCharacters; offset += limit) {
     requests.push(getCharactersList(trimmedInputValue, limit, offset));
   }
 
-  handleRequestsAndResults(requests, setIsLoading, handleResult);
+  handleRequestsAndResults(requests, setIsLoading, setItems);
 }
 
 function handleInputChange(
@@ -90,39 +89,39 @@ function handleInputChange(
 export default function SearchInput({
   type,
   placeholder,
-  handleResult,
-  handleStartSearch,
   isExistItems,
 }: SearchInputProps): JSX.Element {
+  const { setItems } = useContext(Context);
+  const { isLoading, setIsLoading } = useContext(IsLoadingContext);
   const [inputValue, setInputValue] = useState(localStorage.getItem('searchQuery') || '');
-  const [isLoading, setIsLoading] = useState(false);
+  const contextInputValue = useMemo(() => ({ inputValue, setInputValue }), [inputValue]);
 
   useEffect(() => {
     if (!isExistItems && !isLoading) {
       if (inputValue !== '') {
-        handleSearch(inputValue, setIsLoading, handleResult, handleStartSearch);
+        handleSearch(inputValue, setIsLoading, setItems);
       } else {
-        fetchAllCharacters(setIsLoading, handleResult, handleStartSearch);
+        fetchAllCharacters(setIsLoading, setItems);
       }
     }
-  }, [handleResult, handleStartSearch]);
+  }, [setItems, setIsLoading]);
 
   return (
-    <div className={styles['search-input']}>
-      <input
-        id="input"
-        type={type}
-        placeholder={placeholder}
-        value={inputValue}
-        onChange={(e): void => handleInputChange(e, setInputValue)}
-      />
-      <Button
-        name="Search"
-        onClick={(): void =>
-          handleSearch(inputValue, setIsLoading, handleResult, handleStartSearch)
-        }
-        disabled={isLoading}
-      />
-    </div>
+    <InputValueContext.Provider value={contextInputValue}>
+      <div className={styles['search-input']}>
+        <input
+          id="input"
+          type={type}
+          placeholder={placeholder}
+          value={inputValue}
+          onChange={(e): void => handleInputChange(e, setInputValue)}
+        />
+        <Button
+          name="Search"
+          onClick={(): void => handleSearch(inputValue, setIsLoading, setItems)}
+          disabled={isLoading}
+        />
+      </div>
+    </InputValueContext.Provider>
   );
 }

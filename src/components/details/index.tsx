@@ -14,7 +14,9 @@ function handleCloseClick(searchParams: URLSearchParams, navigate: NavigateFunct
 }
 
 export function getCharacter(itemId: number): Promise<Result> {
-  const apiUrl = `https://gateway.marvel.com/v1/public/characters/${itemId}?ts=1&apikey=fc27ccfdf4f6216977c85675f33f1731&hash=90cbc144b23e3074532d7dda72228c74`;
+  const key = import.meta.env.VITE_API_KEY;
+  const hash = import.meta.env.VITE_HASH;
+  const apiUrl = `https://gateway.marvel.com/v1/public/characters/${itemId}?ts=1&apikey=${key}&hash=${hash}`;
 
   return handleApiUrl(apiUrl);
 }

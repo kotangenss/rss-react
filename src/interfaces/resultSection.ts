@@ -24,8 +24,3 @@ export interface GeneralItem {
   name: string;
   type?: string;
 }
-
-export interface ResultSectionProps {
-  items: Item[] | undefined;
-  isSearchStart: boolean;
-}

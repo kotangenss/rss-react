@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { NavigateFunction, useLocation, useNavigate, Link } from 'react-router-dom';
 import styles from './resultsSection.module.scss';
 import Button from '../button';
-import { Item, ResultSectionProps } from '../../interfaces/resultSection';
 import SelectInput from '../selectInput';
 import Loader from '../loader';
+import { Context, IsLoadingContext } from '../contexts';
 
 function scrollToHead(myRef: React.RefObject<HTMLDivElement>): void {
   myRef.current?.scrollIntoView();
@@ -52,13 +52,11 @@ function getPage(searchParams: URLSearchParams): number {
   return page;
 }
 
-export default function ResultSection({
-  items: newItems,
-  isSearchStart: isLoading,
-}: ResultSectionProps): JSX.Element {
+export default function ResultSection(): JSX.Element {
+  const { items } = useContext(Context);
+  const { isLoading } = useContext(IsLoadingContext);
   const myRef = React.createRef<HTMLDivElement>();
   const [currentPage, setCurrentPage] = useState(0);
-  const [items, setItems] = useState<Item[] | undefined>();
   const [selectedItemCount, setSelectedItemCount] = useState(3);
   const startIndex = currentPage * selectedItemCount;
   const endIndex = startIndex + selectedItemCount;
@@ -106,21 +104,20 @@ export default function ResultSection({
   }
 
   useEffect(() => {
-    if (newItems && items !== newItems) {
-      setItems(newItems);
+    if (items && items.length === 0) {
+      searchParams.delete('page');
+      navigate(`?${searchParams.toString()}`);
+    } else if (searchParams.has('page') && String(currentPage) !== searchParams.get('page')) {
+      const page = getPage(searchParams);
+      setCurrentPage(page - 1);
+    } else {
       setCurrentPage(0);
       searchParams.set('page', '1');
       navigate(`?${searchParams.toString()}`);
-    } else if (items && items.length === 0) {
-      searchParams.delete('page');
-      navigate(`?${searchParams.toString()}`);
-    } else if (items) {
-      const page = getPage(searchParams);
-      setCurrentPage(page - 1);
     }
 
     scrollToHead(myRef);
-  }, [items, newItems, location.search]);
+  }, [items, location.search]);
 
   return (
     <div ref={myRef} className={styles['result-section']}>
