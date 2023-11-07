@@ -38,6 +38,13 @@ h2 {
   background: $sectionBackground;
   border-radius: 5px;
   padding: 10px;
+  transition: all 0.3s ease;
+  outline: 3px solid $sectionBackground;
+
+  &:hover {
+    background: $generalBackground;
+    outline: 3px solid $sectionBackground;
+  }
 
   h3 {
     text-align: center;
