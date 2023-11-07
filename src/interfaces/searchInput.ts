@@ -9,5 +9,6 @@ export interface SearchInputProps {
 export interface Result {
   data: {
     results: Item[];
+    total: number;
   };
 }

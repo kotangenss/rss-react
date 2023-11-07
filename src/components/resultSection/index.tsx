@@ -1,72 +1,47 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { NavigateFunction, useLocation, useNavigate, Link } from 'react-router-dom';
+import React, { useContext, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styles from './resultsSection.module.scss';
 import Button from '../button';
 import SelectInput from '../selectInput';
 import Loader from '../loader';
 import { Context, IsLoadingContext } from '../contexts';
+import { Data } from '../../interfaces/contexts';
 
 function scrollToHead(myRef: React.RefObject<HTMLDivElement>): void {
   myRef.current?.scrollIntoView();
 }
 
-function goToNextPage(
-  currentPage: number,
-  searchParams: URLSearchParams,
-  navigate: NavigateFunction
-): void {
-  const nextPage = currentPage + 2;
-  searchParams.set('page', nextPage.toString());
-  navigate(`?${searchParams.toString()}`);
+function goToNextPage(data: Data, setData: React.Dispatch<React.SetStateAction<Data>>): void {
+  const { page, limit, total } = data;
+  setData({ items: undefined, page: page + 1, limit, total });
 }
 
-function goToPrevPage(
-  currentPage: number,
-  searchParams: URLSearchParams,
-  navigate: NavigateFunction
-): void {
-  const prevPage = currentPage;
-  searchParams.set('page', prevPage.toString());
-  navigate(`?${searchParams.toString()}`);
+function goToPrevPage(data: Data, setData: React.Dispatch<React.SetStateAction<Data>>): void {
+  const { page, limit, total } = data;
+  setData({ items: undefined, page: page - 1, limit, total });
 }
 
 function handleItemCountChange(
   event: React.ChangeEvent<HTMLSelectElement>,
-  setSelectedItemCount: React.Dispatch<React.SetStateAction<number>>,
-  setCurrentPage: React.Dispatch<React.SetStateAction<number>>,
-  searchParams: URLSearchParams,
-  navigate: NavigateFunction
+  data: Data,
+  setData: React.Dispatch<React.SetStateAction<Data>>
 ): void {
-  const newSelectedItemCount = parseInt(event.target.value, 10);
-  setSelectedItemCount(newSelectedItemCount);
-  setCurrentPage(0);
-  searchParams.set('page', '1');
-  navigate(`?${searchParams.toString()}`);
-}
-
-function getPage(searchParams: URLSearchParams): number {
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  if (Number.isNaN(page)) {
-    return 1;
-  }
-  return page;
+  const limit = parseInt(event.target.value, 10);
+  const { total } = data;
+  setData({ items: undefined, page: 1, limit, total });
 }
 
 export default function ResultSection(): JSX.Element {
-  const { items } = useContext(Context);
+  const { data, setData } = useContext(Context);
+  const { items, page, total, limit } = data;
   const { isLoading } = useContext(IsLoadingContext);
   const myRef = React.createRef<HTMLDivElement>();
-  const [currentPage, setCurrentPage] = useState(0);
-  const [selectedItemCount, setSelectedItemCount] = useState(3);
-  const startIndex = currentPage * selectedItemCount;
-  const endIndex = startIndex + selectedItemCount;
-  const displayedItems = items?.slice(startIndex, endIndex);
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
-  const itemList = displayedItems?.map((item) => (
+  const itemList = items?.map((item) => (
     <Link
-      to={`/?page=${currentPage + 1}&details=${item.id}&name=${item.name}`}
+      to={`/?page=${page}&details=${item.id}&name=${item.name}`}
       key={`item.name-item.id-${Math.random()}`}
       className={styles['result-item']}
     >
@@ -89,8 +64,8 @@ export default function ResultSection(): JSX.Element {
       <p>No pages</p>
     ) : (
       <p>
-        Page&nbsp;{currentPage + 1}&nbsp;of&nbsp;
-        {Math.ceil(itemCounts / selectedItemCount)}
+        Page&nbsp;{page}&nbsp;of&nbsp;
+        {Math.ceil(total / limit)}
       </p>
     );
   let resultHeader;
@@ -100,33 +75,28 @@ export default function ResultSection(): JSX.Element {
   } else if (itemCounts === 0) {
     resultHeader = <h2>Nothing found</h2>;
   } else {
-    resultHeader = <h2>Results ({itemCounts})</h2>;
+    resultHeader = <h2>Results ({total})</h2>;
   }
 
   useEffect(() => {
-    if (items && items.length === 0) {
-      searchParams.delete('page');
+    if (items) {
+      searchParams.set('page', String(page));
       navigate(`?${searchParams.toString()}`);
-    } else if (searchParams.has('page') && String(currentPage) !== searchParams.get('page')) {
-      const page = getPage(searchParams);
-      setCurrentPage(page - 1);
     } else {
-      setCurrentPage(0);
-      searchParams.set('page', '1');
+      searchParams.delete('page');
       navigate(`?${searchParams.toString()}`);
     }
 
     scrollToHead(myRef);
-  }, [items, location.search]);
+  }, [items]);
 
   return (
     <div ref={myRef} className={styles['result-section']}>
       {resultHeader}
       <SelectInput
-        onSelectChange={(event): void =>
-          handleItemCountChange(event, setSelectedItemCount, setCurrentPage, searchParams, navigate)
-        }
+        onSelectChange={(event): void => handleItemCountChange(event, data, setData)}
         options={['3', '6', '9']}
+        value={String(limit)}
       />
       <div className={styles['result-container']}>{isLoading ? <Loader size="s" /> : itemList}</div>
       <div className={styles['result-pagination']}>
@@ -136,14 +106,14 @@ export default function ResultSection(): JSX.Element {
           <>
             <Button
               name="Prev"
-              onClick={(): void => goToPrevPage(currentPage, searchParams, navigate)}
-              disabled={currentPage === 0}
+              onClick={(): void => goToPrevPage(data, setData)}
+              disabled={page === 1}
             />
             {pagesnumberOfPages}
             <Button
               name="Next"
-              onClick={(): void => goToNextPage(currentPage, searchParams, navigate)}
-              disabled={endIndex >= itemCounts || itemCounts === 0}
+              onClick={(): void => goToNextPage(data, setData)}
+              disabled={page === Math.ceil(total / limit) || itemCounts === 0}
             />
           </>
         )}

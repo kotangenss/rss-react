@@ -1,10 +1,10 @@
 import { createContext } from 'react';
-import { Item } from '../interfaces/resultSection';
+import { Data } from '../interfaces/contexts';
 
 export const Context = createContext<{
-  items: Item[] | undefined;
-  setItems: React.Dispatch<React.SetStateAction<Item[] | undefined>>;
-}>({ items: undefined, setItems: (): void => {} });
+  data: Data;
+  setData: React.Dispatch<React.SetStateAction<Data>>;
+}>({ data: { items: undefined, page: 1, limit: 3, total: 0 }, setData: (): void => {} });
 
 export const IsLoadingContext = createContext<{
   isLoading: boolean;
