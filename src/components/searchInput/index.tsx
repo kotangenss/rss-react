@@ -15,7 +15,7 @@ function getAllCharactersList(limit: number, offset: number): Promise<Result> {
   return handleApiUrl(apiUrl);
 }
 
-export function getCharactersList(value: string, limit: number, offset: number): Promise<Result> {
+function getCharactersList(value: string, limit: number, offset: number): Promise<Result> {
   const key = import.meta.env.VITE_API_KEY;
   const hash = import.meta.env.VITE_HASH;
   const apiUrl = `https://gateway.marvel.com/v1/public/characters?ts=1&limit=${limit}&apikey=${key}&hash=${hash}&nameStartsWith=${value.trim()}&offset=${offset}`;
@@ -49,12 +49,11 @@ async function fetchAllCharacters(
   const request = getAllCharactersList(limit, offset);
 
   const { items, total } = await handleRequest(request);
-
   setData({ items, page, limit, total });
   setIsLoading(false);
 }
 
-export async function handleSearch(
+async function handleSearch(
   inputValue: string,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
   data: Data,
@@ -119,7 +118,7 @@ export default function SearchInput({
         />
         <Button
           name="Search"
-          onClick={(): void => setData({ items: undefined, page: 1, limit: 3, total: 0 })}
+          onClick={(): Promise<void> => handleSearch(inputValue, setIsLoading, data, setData)}
           disabled={isLoading}
         />
       </div>

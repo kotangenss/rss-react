@@ -44,6 +44,7 @@ export default function Main(): JSX.Element {
         className={styles.main}
         onClick={(): void => handleClickOnMain(searchParams, navigate)}
         aria-hidden="true"
+        data-testid="main"
       >
         <Button
           className="simulate-button"

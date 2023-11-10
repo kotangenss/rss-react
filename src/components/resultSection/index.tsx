@@ -41,6 +41,7 @@ export default function ResultSection(): JSX.Element {
   const searchParams = new URLSearchParams(location.search);
   const itemList = items?.map((item) => (
     <Link
+      data-testid={`link-${item.id}`}
       to={`/?page=${page}&details=${item.id}&name=${item.name}`}
       key={`item.name-item.id-${Math.random()}`}
       className={styles['result-item']}

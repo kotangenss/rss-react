@@ -13,7 +13,7 @@ function handleCloseClick(searchParams: URLSearchParams, navigate: NavigateFunct
   navigate(`?${searchParams.toString()}`);
 }
 
-export function getCharacter(itemId: number): Promise<Result> {
+function getCharacter(itemId: number): Promise<Result> {
   const key = import.meta.env.VITE_API_KEY;
   const hash = import.meta.env.VITE_HASH;
   const apiUrl = `https://gateway.marvel.com/v1/public/characters/${itemId}?ts=1&apikey=${key}&hash=${hash}`;
@@ -81,7 +81,7 @@ export default function Details(): JSX.Element {
     <div className={styles.container}>
       <h2>Details</h2>
       <h3>
-        {item.name} <span>({item.id})</span>
+        {item.name} <span data-testid={`detailes-id-${item.id}`}>({item.id})</span>
       </h3>
       <p>{item.description}</p>
       <img
