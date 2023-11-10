@@ -66,41 +66,40 @@ export default function Details(): JSX.Element {
     }
   }, [itemId]);
 
-  if (isLoading) {
-    window.scrollTo(0, 0);
-    return (
-      <div className={styles.container}>
-        <Loader size="m" />
-      </div>
-    );
-  }
+  if (isLoading) window.scrollTo(0, 0);
 
-  if (!item) return <span />;
+  if (!isLoading && !item) return <span />;
 
   return (
     <div className={styles.container}>
-      <h2>Details</h2>
-      <h3>
-        {item.name} <span data-testid={`detailes-id-${item.id}`}>({item.id})</span>
-      </h3>
-      <p>{item.description}</p>
-      <img
-        src={`${item.thumbnail.path}/portrait_uncanny.${item.thumbnail.extension}`}
-        alt={item.name}
-      />
-      <ul className={styles['item-comics']}>
-        <h4>Comics</h4>
-        {comicsList}
-      </ul>
-      <ul className={styles['item-series']}>
-        <h4>Series</h4>
-        {seriesList}
-      </ul>
-      <Button
-        className={styles['close-details']}
-        name="x"
-        onClick={(): void => handleCloseClick(searchParams, navigate)}
-      />
+      {!isLoading && item ? (
+        <div>
+          <h2>Details</h2>
+          <h3>
+            {item.name} <span data-testid={`detailes-id-${item.id}`}>({item.id})</span>
+          </h3>
+          <p>{item.description}</p>
+          <img
+            src={`${item.thumbnail.path}/portrait_uncanny.${item.thumbnail.extension}`}
+            alt={item.name}
+          />
+          <ul className={styles['item-comics']}>
+            <h4>Comics</h4>
+            {comicsList}
+          </ul>
+          <ul className={styles['item-series']}>
+            <h4>Series</h4>
+            {seriesList}
+          </ul>
+          <Button
+            className={styles['close-details']}
+            name="x"
+            onClick={(): void => handleCloseClick(searchParams, navigate)}
+          />
+        </div>
+      ) : (
+        <Loader size="m" />
+      )}
     </div>
   );
 }

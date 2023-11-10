@@ -53,7 +53,7 @@ async function fetchAllCharacters(
   setIsLoading(false);
 }
 
-async function handleSearch(
+async function fetchCharactersByName(
   inputValue: string,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
   data: Data,
@@ -79,6 +79,19 @@ async function handleSearch(
   setIsLoading(false);
 }
 
+function runLoadindCharacters(
+  inputValue: string,
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  data: Data,
+  setData: React.Dispatch<React.SetStateAction<Data>>
+): void {
+  if (inputValue !== '') {
+    fetchCharactersByName(inputValue, setIsLoading, data, setData);
+  } else {
+    fetchAllCharacters(setIsLoading, data, setData);
+  }
+}
+
 function handleInputChange(
   e: React.ChangeEvent<HTMLInputElement>,
   setInputValue: React.Dispatch<React.SetStateAction<string>>
@@ -98,11 +111,7 @@ export default function SearchInput({
 
   useEffect(() => {
     if (!isExistItems && !isLoading) {
-      if (inputValue !== '') {
-        handleSearch(inputValue, setIsLoading, data, setData);
-      } else {
-        fetchAllCharacters(setIsLoading, data, setData);
-      }
+      runLoadindCharacters(inputValue, setIsLoading, data, setData);
     }
   }, [data]);
 
@@ -118,7 +127,9 @@ export default function SearchInput({
         />
         <Button
           name="Search"
-          onClick={(): Promise<void> => handleSearch(inputValue, setIsLoading, data, setData)}
+          onClick={(): Promise<void> =>
+            fetchCharactersByName(inputValue, setIsLoading, data, setData)
+          }
           disabled={isLoading}
         />
       </div>

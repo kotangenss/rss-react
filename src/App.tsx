@@ -9,7 +9,7 @@ import NotFound from './pages/notFound';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <Router basename={import.meta.env.VITE_PUBLIC_URL}>
+    <Router>
       <ErrorBoundary fallback={<p className={styles['error-boundary']}>Something went wrong</p>}>
         <Routes>
           <Route path="/" element={<Main />}>

@@ -39,6 +39,7 @@ export default function ResultSection(): JSX.Element {
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
+  const itemsPerPage = ['3', '6', '9'];
   const itemList = items?.map((item) => (
     <Link
       data-testid={`link-${item.id}`}
@@ -71,9 +72,7 @@ export default function ResultSection(): JSX.Element {
     );
   let resultHeader;
 
-  if (isLoading) {
-    resultHeader = null;
-  } else if (itemCounts === 0) {
+  if (itemCounts === 0) {
     resultHeader = <h2>Nothing found</h2>;
   } else {
     resultHeader = <h2>Results ({total})</h2>;
@@ -93,10 +92,10 @@ export default function ResultSection(): JSX.Element {
 
   return (
     <div ref={myRef} className={styles['result-section']}>
-      {resultHeader}
+      {!isLoading && resultHeader}
       <SelectInput
         onSelectChange={(event): void => handleItemCountChange(event, data, setData)}
-        options={['3', '6', '9']}
+        options={itemsPerPage}
         value={String(limit)}
       />
       <div className={styles['result-container']}>{isLoading ? <Loader size="s" /> : itemList}</div>
