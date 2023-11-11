@@ -4,7 +4,7 @@ import SearchSection from '../../components/searchSection';
 import styles from './main.module.scss';
 import ResultSection from '../../components/resultSection';
 import Button from '../../components/button';
-import { Context, IsLoadingContext } from '../../components/contexts';
+import { Context } from '../../components/contexts';
 import { Data } from '../../interfaces/contexts';
 
 function handleButtonClick(setHasError: React.Dispatch<React.SetStateAction<boolean>>): void {
@@ -26,13 +26,11 @@ export default function Main(): JSX.Element {
     limit: 3,
     total: 0,
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const contextValue = useMemo(() => ({ data, setData }), [data]);
-  const contextIsLoadingValue = useMemo(() => ({ isLoading, setIsLoading }), [isLoading]);
 
   if (hasError) {
     throw new Error('Throw an error after clicking a button');
@@ -52,10 +50,8 @@ export default function Main(): JSX.Element {
           onClick={(): void => handleButtonClick(setHasError)}
         />
         <Context.Provider value={contextValue}>
-          <IsLoadingContext.Provider value={contextIsLoadingValue}>
-            <SearchSection isExistItems={!!data.items} />
-            <ResultSection />
-          </IsLoadingContext.Provider>
+          <SearchSection isExistItems={!!data.items} />
+          <ResultSection />
         </Context.Provider>
         <p className={styles.attribution}>Data provided by Marvel. © 2014 Marvel</p>
       </div>

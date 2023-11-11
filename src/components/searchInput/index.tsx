@@ -1,14 +1,16 @@
-import React, { useContext, useEffect } from 'react';
+import React, { Dispatch, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { AnyAction } from '@reduxjs/toolkit';
 import styles from './input.module.scss';
 import Button from '../button';
 import { Result, SearchInputProps } from '../../interfaces/searchInput';
 import { Item } from '../../interfaces/resultSection';
 import handleApiUrl from '../../helpers/handleApiUrl';
-import { Context, IsLoadingContext } from '../contexts';
+import { Context } from '../contexts';
 import { Data } from '../../interfaces/contexts';
 import { RootState } from '../../store';
 import { DispatchSearch, saveSearchValue } from '../../store/searchSlice';
+import { setIsLoadingValue } from '../../store/isLoadingMainSlice';
 
 function getAllCharactersList(limit: number, offset: number): Promise<Result> {
   const key = import.meta.env.VITE_API_KEY;
@@ -40,25 +42,25 @@ function handleRequest(
 }
 
 async function fetchAllCharacters(
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  dispatch: Dispatch<AnyAction>,
   data: Data,
   setData: React.Dispatch<React.SetStateAction<Data>>
 ): Promise<void> {
   const { limit, page } = data;
   const offset = page * limit - limit;
 
-  setIsLoading(true);
+  dispatch(setIsLoadingValue(true));
 
   const request = getAllCharactersList(limit, offset);
-
   const { items, total } = await handleRequest(request);
+
   setData({ items, page, limit, total });
-  setIsLoading(false);
+  dispatch(setIsLoadingValue(false));
 }
 
 async function fetchCharactersByName(
   inputValue: string,
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  dispatch: Dispatch<AnyAction>,
   data: Data,
   setData: React.Dispatch<React.SetStateAction<Data>>
 ): Promise<void> {
@@ -72,26 +74,26 @@ async function fetchCharactersByName(
   }
 
   localStorage.setItem('searchQuery', trimmedInputValue);
-  setIsLoading(true);
+  dispatch(setIsLoadingValue(true));
 
   const request = getCharactersList(trimmedInputValue, limit, offset);
 
   const { items, total } = await handleRequest(request);
 
   setData({ items, page, limit, total });
-  setIsLoading(false);
+  dispatch(setIsLoadingValue(false));
 }
 
 function runLoadindCharacters(
   inputValue: string,
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  dispatch: Dispatch<AnyAction>,
   data: Data,
   setData: React.Dispatch<React.SetStateAction<Data>>
 ): void {
   if (inputValue !== '') {
-    fetchCharactersByName(inputValue, setIsLoading, data, setData);
+    fetchCharactersByName(inputValue, dispatch, data, setData);
   } else {
-    fetchAllCharacters(setIsLoading, data, setData);
+    fetchAllCharacters(dispatch, data, setData);
   }
 }
 
@@ -101,14 +103,15 @@ export default function SearchInput({
   isExistItems,
 }: SearchInputProps): JSX.Element {
   const { data, setData } = useContext(Context);
-  const { isLoading, setIsLoading } = useContext(IsLoadingContext);
   const getSearchValue = (state: RootState): string => state.search.value;
   const searchValue = useSelector(getSearchValue);
+  const getIsLoadingValue = (state: RootState): boolean => state.isLoadingMain.value;
+  const isLoadingValue = useSelector(getIsLoadingValue);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!isExistItems && !isLoading) {
-      runLoadindCharacters(searchValue, setIsLoading, data, setData);
+    if (!isExistItems && !isLoadingValue) {
+      runLoadindCharacters(searchValue, dispatch, data, setData);
     }
   }, [data]);
 
@@ -123,10 +126,8 @@ export default function SearchInput({
       />
       <Button
         name="Search"
-        onClick={(): Promise<void> =>
-          fetchCharactersByName(searchValue, setIsLoading, data, setData)
-        }
-        disabled={isLoading}
+        onClick={(): Promise<void> => fetchCharactersByName(searchValue, dispatch, data, setData)}
+        disabled={isLoadingValue}
       />
     </div>
   );

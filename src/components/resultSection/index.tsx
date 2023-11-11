@@ -1,11 +1,13 @@
 import React, { useContext, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import styles from './resultsSection.module.scss';
 import Button from '../button';
 import SelectInput from '../selectInput';
 import Loader from '../loader';
-import { Context, IsLoadingContext } from '../contexts';
+import { Context } from '../contexts';
 import { Data } from '../../interfaces/contexts';
+import { RootState } from '../../store';
 
 function scrollToHead(myRef: React.RefObject<HTMLDivElement>): void {
   myRef.current?.scrollIntoView();
@@ -34,7 +36,6 @@ function handleItemCountChange(
 export default function ResultSection(): JSX.Element {
   const { data, setData } = useContext(Context);
   const { items, page, total, limit } = data;
-  const { isLoading } = useContext(IsLoadingContext);
   const myRef = React.createRef<HTMLDivElement>();
   const location = useLocation();
   const navigate = useNavigate();
@@ -70,6 +71,8 @@ export default function ResultSection(): JSX.Element {
         {Math.ceil(total / limit)}
       </p>
     );
+  const getIsLoadingValue = (state: RootState): boolean => state.isLoadingMain.value;
+  const isLoadingValue = useSelector(getIsLoadingValue);
   let resultHeader;
 
   if (itemCounts === 0) {
@@ -92,15 +95,17 @@ export default function ResultSection(): JSX.Element {
 
   return (
     <div ref={myRef} className={styles['result-section']}>
-      {!isLoading && resultHeader}
+      {!isLoadingValue && resultHeader}
       <SelectInput
         onSelectChange={(event): void => handleItemCountChange(event, data, setData)}
         options={itemsPerPage}
         value={String(limit)}
       />
-      <div className={styles['result-container']}>{isLoading ? <Loader size="s" /> : itemList}</div>
+      <div className={styles['result-container']}>
+        {isLoadingValue ? <Loader size="s" /> : itemList}
+      </div>
       <div className={styles['result-pagination']}>
-        {isLoading ? (
+        {isLoadingValue ? (
           <p />
         ) : (
           <>
