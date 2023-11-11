@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavigateFunction, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { Dispatch } from '@reduxjs/toolkit';
 import { GeneralItem, Item } from '../../interfaces/resultSection';
 import styles from './details.module.scss';
 import Button from '../button';
@@ -9,10 +10,16 @@ import Loader from '../loader';
 import handleApiUrl from '../../helpers/handleApiUrl';
 import { RootState } from '../../store';
 import { setIsLoadingDetailsValue } from '../../store/isLoadingSlice';
+import { setActiveItemIdValue } from '../../store/activeItemIdSlice';
 
-function handleCloseClick(searchParams: URLSearchParams, navigate: NavigateFunction): void {
+function handleCloseClick(
+  searchParams: URLSearchParams,
+  navigate: NavigateFunction,
+  dispatch: Dispatch
+): void {
   searchParams.delete('details');
   searchParams.delete('name');
+  dispatch(setActiveItemIdValue(undefined));
   navigate(`?${searchParams.toString()}`);
 }
 
@@ -43,7 +50,8 @@ export default function Details(): JSX.Element {
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
-  const itemId = searchParams.get('details');
+  const getActiveItemIdValue = (state: RootState): undefined | number => state.activeItemId.value;
+  const itemId = useSelector(getActiveItemIdValue);
   const comicsList = getListItems(item?.id, item?.comics.items, 'No comics');
   const seriesList = getListItems(item?.id, item?.series.items, 'No series');
   const getIsLoadingValue = (state: RootState): boolean => state.isLoading.details;
@@ -99,7 +107,7 @@ export default function Details(): JSX.Element {
           <Button
             className={styles['close-details']}
             name="x"
-            onClick={(): void => handleCloseClick(searchParams, navigate)}
+            onClick={(): void => handleCloseClick(searchParams, navigate, dispatch)}
           />
         </div>
       ) : (

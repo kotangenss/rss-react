@@ -1,21 +1,28 @@
 import React, { useState } from 'react';
 import { NavigateFunction, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { Dispatch } from '@reduxjs/toolkit';
 import SearchSection from '../../components/searchSection';
 import styles from './main.module.scss';
 import ResultSection from '../../components/resultSection';
 import Button from '../../components/button';
 import { Data } from '../../interfaces/contexts';
 import { RootState } from '../../store';
+import { setActiveItemIdValue } from '../../store/activeItemIdSlice';
 
 function handleButtonClick(setHasError: React.Dispatch<React.SetStateAction<boolean>>): void {
   setHasError(true);
 }
 
-function handleClickOnMain(searchParams: URLSearchParams, navigate: NavigateFunction): void {
+function handleClickOnMain(
+  searchParams: URLSearchParams,
+  navigate: NavigateFunction,
+  dispatch: Dispatch
+): void {
   if (searchParams.has('details')) {
     searchParams.delete('details');
     searchParams.delete('name');
+    dispatch(setActiveItemIdValue(undefined));
     navigate(`?${searchParams.toString()}`);
   }
 }
@@ -27,6 +34,7 @@ export default function Main(): JSX.Element {
   const searchParams = new URLSearchParams(location.search);
   const getDataValue = (state: RootState): Data => state.data.value;
   const dataValue = useSelector(getDataValue);
+  const dispatch = useDispatch();
 
   if (hasError) {
     throw new Error('Throw an error after clicking a button');
@@ -36,7 +44,7 @@ export default function Main(): JSX.Element {
     <div className={styles.container}>
       <div
         className={styles.main}
-        onClick={(): void => handleClickOnMain(searchParams, navigate)}
+        onClick={(): void => handleClickOnMain(searchParams, navigate, dispatch)}
         aria-hidden="true"
         data-testid="main"
       >

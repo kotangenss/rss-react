@@ -9,6 +9,7 @@ import Loader from '../loader';
 import { Data } from '../../interfaces/contexts';
 import { RootState } from '../../store';
 import { setDataValue } from '../../store/dataSlice';
+import { DispatchActiveItemId, setActiveItemIdValue } from '../../store/activeItemIdSlice';
 
 function scrollToHead(myRef: React.RefObject<HTMLDivElement>): void {
   myRef.current?.scrollIntoView();
@@ -48,6 +49,7 @@ export default function ResultSection(): JSX.Element {
     <Link
       data-testid={`link-${item.id}`}
       to={`/?page=${page}&details=${item.id}&name=${item.name}`}
+      onClick={(): DispatchActiveItemId => dispatch(setActiveItemIdValue(item.id))}
       key={`item.name-item.id-${Math.random()}`}
       className={styles['result-item']}
     >
