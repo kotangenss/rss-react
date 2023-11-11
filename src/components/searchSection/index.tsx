@@ -4,11 +4,7 @@ import spiderMan from '../../assets/img/spiderMan.png';
 import SearchInput from '../searchInput';
 import { SearchSectionProps } from '../../interfaces/searchSection';
 
-export default function SearchSection({
-  handleResult,
-  handleStartSearch,
-  isExistItems,
-}: SearchSectionProps): JSX.Element {
+export default function SearchSection({ isExistItems }: SearchSectionProps): JSX.Element {
   return (
     <div className={styles['search-section']}>
       <a
@@ -34,13 +30,7 @@ export default function SearchSection({
             complete list of comics and series in which this hero. Enjoy!
           </p>
         </div>
-        <SearchInput
-          type="text"
-          placeholder="Search..."
-          handleResult={handleResult}
-          handleStartSearch={handleStartSearch}
-          isExistItems={isExistItems}
-        />
+        <SearchInput type="text" placeholder="Search..." isExistItems={isExistItems} />
         <div className={styles['main-img']}>
           <img src={spiderMan} alt="spider man" />
         </div>

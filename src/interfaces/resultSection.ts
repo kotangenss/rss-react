@@ -2,7 +2,7 @@ export interface Item {
   id: number;
   name: string;
   thumbnail: Thumbnail;
-  description: string;
+  description: string | null;
   comics: GeneralItems;
   series: GeneralItems;
 }
@@ -23,9 +23,4 @@ export interface GeneralItem {
   resourceURI: string;
   name: string;
   type?: string;
-}
-
-export interface ResultSectionProps {
-  items: Item[] | undefined;
-  isSearchStart: boolean;
 }
