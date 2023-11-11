@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { NavigateFunction, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { GeneralItem, Item } from '../../interfaces/resultSection';
 import styles from './details.module.scss';
 import Button from '../button';
 import { Result } from '../../interfaces/searchInput';
 import Loader from '../loader';
 import handleApiUrl from '../../helpers/handleApiUrl';
+import { RootState } from '../../store';
+import { setIsLoadingDetailsValue } from '../../store/isLoadingSlice';
 
 function handleCloseClick(searchParams: URLSearchParams, navigate: NavigateFunction): void {
   searchParams.delete('details');
@@ -37,42 +40,44 @@ function getListItems(
 
 export default function Details(): JSX.Element {
   const [item, setItem] = useState<Item | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const itemId = searchParams.get('details');
   const comicsList = getListItems(item?.id, item?.comics.items, 'No comics');
   const seriesList = getListItems(item?.id, item?.series.items, 'No series');
+  const getIsLoadingValue = (state: RootState): boolean => state.isLoading.details;
+  const isLoadingValue = useSelector(getIsLoadingValue);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (itemId) {
-      setIsLoading(true);
+      dispatch(setIsLoadingDetailsValue(true));
       getCharacter(Number(itemId))
         .then((response) => {
           setItem(response.data.results[0]);
-          setIsLoading(false);
+          dispatch(setIsLoadingDetailsValue(false));
         })
         .catch((error: Error) => {
           searchParams.delete('details');
           searchParams.delete('name');
-          setIsLoading(false);
+          dispatch(setIsLoadingDetailsValue(false));
           console.error('Error:', error);
           navigate(`?${searchParams.toString()}`);
         });
     } else {
       setItem(null);
-      setIsLoading(false);
+      dispatch(setIsLoadingDetailsValue(false));
     }
   }, [itemId]);
 
-  if (isLoading) window.scrollTo(0, 0);
+  if (isLoadingValue) window.scrollTo(0, 0);
 
-  if (!isLoading && !item) return <span />;
+  if (!isLoadingValue && !item) return <span />;
 
   return (
     <div className={styles.container}>
-      {!isLoading && item ? (
+      {!isLoadingValue && item ? (
         <div>
           <h2>Details</h2>
           <h3>

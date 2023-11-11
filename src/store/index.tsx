@@ -1,11 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import searchReducer from './searchSlice';
-import isLoadingMainReducer from './isLoadingMainSlice';
+import isLoadingReducer from './isLoadingSlice';
 
 export const store = configureStore({
   reducer: {
     search: searchReducer,
-    isLoadingMain: isLoadingMainReducer,
+    isLoading: isLoadingReducer,
   },
 });
 

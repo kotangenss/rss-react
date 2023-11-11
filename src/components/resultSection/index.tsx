@@ -71,7 +71,7 @@ export default function ResultSection(): JSX.Element {
         {Math.ceil(total / limit)}
       </p>
     );
-  const getIsLoadingValue = (state: RootState): boolean => state.isLoadingMain.value;
+  const getIsLoadingValue = (state: RootState): boolean => state.isLoading.main;
   const isLoadingValue = useSelector(getIsLoadingValue);
   let resultHeader;
 

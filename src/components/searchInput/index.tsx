@@ -10,7 +10,7 @@ import { Context } from '../contexts';
 import { Data } from '../../interfaces/contexts';
 import { RootState } from '../../store';
 import { DispatchSearch, saveSearchValue } from '../../store/searchSlice';
-import { setIsLoadingValue } from '../../store/isLoadingMainSlice';
+import { setIsLoadingMainValue } from '../../store/isLoadingSlice';
 
 function getAllCharactersList(limit: number, offset: number): Promise<Result> {
   const key = import.meta.env.VITE_API_KEY;
@@ -49,13 +49,13 @@ async function fetchAllCharacters(
   const { limit, page } = data;
   const offset = page * limit - limit;
 
-  dispatch(setIsLoadingValue(true));
+  dispatch(setIsLoadingMainValue(true));
 
   const request = getAllCharactersList(limit, offset);
   const { items, total } = await handleRequest(request);
 
   setData({ items, page, limit, total });
-  dispatch(setIsLoadingValue(false));
+  dispatch(setIsLoadingMainValue(false));
 }
 
 async function fetchCharactersByName(
@@ -74,14 +74,14 @@ async function fetchCharactersByName(
   }
 
   localStorage.setItem('searchQuery', trimmedInputValue);
-  dispatch(setIsLoadingValue(true));
+  dispatch(setIsLoadingMainValue(true));
 
   const request = getCharactersList(trimmedInputValue, limit, offset);
 
   const { items, total } = await handleRequest(request);
 
   setData({ items, page, limit, total });
-  dispatch(setIsLoadingValue(false));
+  dispatch(setIsLoadingMainValue(false));
 }
 
 function runLoadindCharacters(
@@ -105,7 +105,7 @@ export default function SearchInput({
   const { data, setData } = useContext(Context);
   const getSearchValue = (state: RootState): string => state.search.value;
   const searchValue = useSelector(getSearchValue);
-  const getIsLoadingValue = (state: RootState): boolean => state.isLoadingMain.value;
+  const getIsLoadingValue = (state: RootState): boolean => state.isLoading.main;
   const isLoadingValue = useSelector(getIsLoadingValue);
   const dispatch = useDispatch();
 
