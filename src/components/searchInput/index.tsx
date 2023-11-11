@@ -1,16 +1,16 @@
-import React, { Dispatch, useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AnyAction } from '@reduxjs/toolkit';
+import { Dispatch } from '@reduxjs/toolkit';
 import styles from './input.module.scss';
 import Button from '../button';
 import { Result, SearchInputProps } from '../../interfaces/searchInput';
 import { Item } from '../../interfaces/resultSection';
 import handleApiUrl from '../../helpers/handleApiUrl';
-import { Context } from '../contexts';
 import { Data } from '../../interfaces/contexts';
 import { RootState } from '../../store';
 import { DispatchSearch, saveSearchValue } from '../../store/searchSlice';
 import { setIsLoadingMainValue } from '../../store/isLoadingSlice';
+import { setDataValue } from '../../store/dataSlice';
 
 function getAllCharactersList(limit: number, offset: number): Promise<Result> {
   const key = import.meta.env.VITE_API_KEY;
@@ -41,11 +41,7 @@ function handleRequest(
     });
 }
 
-async function fetchAllCharacters(
-  dispatch: Dispatch<AnyAction>,
-  data: Data,
-  setData: React.Dispatch<React.SetStateAction<Data>>
-): Promise<void> {
+async function fetchAllCharacters(dispatch: Dispatch, data: Data): Promise<void> {
   const { limit, page } = data;
   const offset = page * limit - limit;
 
@@ -53,23 +49,22 @@ async function fetchAllCharacters(
 
   const request = getAllCharactersList(limit, offset);
   const { items, total } = await handleRequest(request);
+  dispatch(setDataValue({ items, page, limit, total }));
 
-  setData({ items, page, limit, total });
   dispatch(setIsLoadingMainValue(false));
 }
 
 async function fetchCharactersByName(
   inputValue: string,
-  dispatch: Dispatch<AnyAction>,
-  data: Data,
-  setData: React.Dispatch<React.SetStateAction<Data>>
+  dispatch: Dispatch,
+  data: Data
 ): Promise<void> {
   const { limit, page } = data;
   const offset = page * limit - limit;
   const trimmedInputValue = inputValue.trim();
 
   if (trimmedInputValue === '') {
-    setData({ items: [], page, limit, total: 0 });
+    dispatch(setDataValue({ items: [], page, limit, total: 0 }));
     return;
   }
 
@@ -80,20 +75,15 @@ async function fetchCharactersByName(
 
   const { items, total } = await handleRequest(request);
 
-  setData({ items, page, limit, total });
+  dispatch(setDataValue({ items, page, limit, total }));
   dispatch(setIsLoadingMainValue(false));
 }
 
-function runLoadindCharacters(
-  inputValue: string,
-  dispatch: Dispatch<AnyAction>,
-  data: Data,
-  setData: React.Dispatch<React.SetStateAction<Data>>
-): void {
+function runLoadindCharacters(inputValue: string, dispatch: Dispatch, data: Data): void {
   if (inputValue !== '') {
-    fetchCharactersByName(inputValue, dispatch, data, setData);
+    fetchCharactersByName(inputValue, dispatch, data);
   } else {
-    fetchAllCharacters(dispatch, data, setData);
+    fetchAllCharacters(dispatch, data);
   }
 }
 
@@ -102,18 +92,19 @@ export default function SearchInput({
   placeholder,
   isExistItems,
 }: SearchInputProps): JSX.Element {
-  const { data, setData } = useContext(Context);
   const getSearchValue = (state: RootState): string => state.search.value;
   const searchValue = useSelector(getSearchValue);
   const getIsLoadingValue = (state: RootState): boolean => state.isLoading.main;
   const isLoadingValue = useSelector(getIsLoadingValue);
+  const getDataValue = (state: RootState): Data => state.data.value;
+  const dataValue = useSelector(getDataValue);
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (!isExistItems && !isLoadingValue) {
-      runLoadindCharacters(searchValue, dispatch, data, setData);
+      runLoadindCharacters(searchValue, dispatch, dataValue);
     }
-  }, [data]);
+  }, [dataValue]);
 
   return (
     <div className={styles['search-input']}>
@@ -126,7 +117,7 @@ export default function SearchInput({
       />
       <Button
         name="Search"
-        onClick={(): Promise<void> => fetchCharactersByName(searchValue, dispatch, data, setData)}
+        onClick={(): Promise<void> => fetchCharactersByName(searchValue, dispatch, dataValue)}
         disabled={isLoadingValue}
       />
     </div>

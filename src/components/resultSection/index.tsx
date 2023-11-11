@@ -1,41 +1,44 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { Dispatch } from '@reduxjs/toolkit';
 import styles from './resultsSection.module.scss';
 import Button from '../button';
 import SelectInput from '../selectInput';
 import Loader from '../loader';
-import { Context } from '../contexts';
 import { Data } from '../../interfaces/contexts';
 import { RootState } from '../../store';
+import { setDataValue } from '../../store/dataSlice';
 
 function scrollToHead(myRef: React.RefObject<HTMLDivElement>): void {
   myRef.current?.scrollIntoView();
 }
 
-function goToNextPage(data: Data, setData: React.Dispatch<React.SetStateAction<Data>>): void {
+function goToNextPage(data: Data, dispatch: Dispatch): void {
   const { page, limit, total } = data;
-  setData({ items: undefined, page: page + 1, limit, total });
+  dispatch(setDataValue({ items: undefined, page: page + 1, limit, total }));
 }
 
-function goToPrevPage(data: Data, setData: React.Dispatch<React.SetStateAction<Data>>): void {
+function goToPrevPage(data: Data, dispatch: Dispatch): void {
   const { page, limit, total } = data;
-  setData({ items: undefined, page: page - 1, limit, total });
+  dispatch(setDataValue({ items: undefined, page: page - 1, limit, total }));
 }
 
 function handleItemCountChange(
   event: React.ChangeEvent<HTMLSelectElement>,
   data: Data,
-  setData: React.Dispatch<React.SetStateAction<Data>>
+  dispatch: Dispatch
 ): void {
   const limit = parseInt(event.target.value, 10);
   const { total } = data;
-  setData({ items: undefined, page: 1, limit, total });
+  dispatch(setDataValue({ items: undefined, page: 1, limit, total }));
 }
 
 export default function ResultSection(): JSX.Element {
-  const { data, setData } = useContext(Context);
-  const { items, page, total, limit } = data;
+  const getDataValue = (state: RootState): Data => state.data.value;
+  const dataValue = useSelector(getDataValue);
+  const dispatch = useDispatch();
+  const { items, page, total, limit } = dataValue;
   const myRef = React.createRef<HTMLDivElement>();
   const location = useLocation();
   const navigate = useNavigate();
@@ -97,7 +100,7 @@ export default function ResultSection(): JSX.Element {
     <div ref={myRef} className={styles['result-section']}>
       {!isLoadingValue && resultHeader}
       <SelectInput
-        onSelectChange={(event): void => handleItemCountChange(event, data, setData)}
+        onSelectChange={(event): void => handleItemCountChange(event, dataValue, dispatch)}
         options={itemsPerPage}
         value={String(limit)}
       />
@@ -111,13 +114,13 @@ export default function ResultSection(): JSX.Element {
           <>
             <Button
               name="Prev"
-              onClick={(): void => goToPrevPage(data, setData)}
+              onClick={(): void => goToPrevPage(dataValue, dispatch)}
               disabled={page === 1}
             />
             {pagesnumberOfPages}
             <Button
               name="Next"
-              onClick={(): void => goToNextPage(data, setData)}
+              onClick={(): void => goToNextPage(dataValue, dispatch)}
               disabled={page === Math.ceil(total / limit) || itemCounts === 0}
             />
           </>
