@@ -1,11 +1,14 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styles from './input.module.scss';
 import Button from '../button';
 import { Result, SearchInputProps } from '../../interfaces/searchInput';
 import { Item } from '../../interfaces/resultSection';
 import handleApiUrl from '../../helpers/handleApiUrl';
-import { Context, InputValueContext, IsLoadingContext } from '../contexts';
+import { Context, IsLoadingContext } from '../contexts';
 import { Data } from '../../interfaces/contexts';
+import { RootState } from '../../store';
+import { DispatchSearch, saveSearchValue } from '../../store/searchSlice';
 
 function getAllCharactersList(limit: number, offset: number): Promise<Result> {
   const key = import.meta.env.VITE_API_KEY;
@@ -92,13 +95,6 @@ function runLoadindCharacters(
   }
 }
 
-function handleInputChange(
-  e: React.ChangeEvent<HTMLInputElement>,
-  setInputValue: React.Dispatch<React.SetStateAction<string>>
-): void {
-  setInputValue(e.target.value);
-}
-
 export default function SearchInput({
   type,
   placeholder,
@@ -106,33 +102,32 @@ export default function SearchInput({
 }: SearchInputProps): JSX.Element {
   const { data, setData } = useContext(Context);
   const { isLoading, setIsLoading } = useContext(IsLoadingContext);
-  const [inputValue, setInputValue] = useState(localStorage.getItem('searchQuery') || '');
-  const contextInputValue = useMemo(() => ({ inputValue, setInputValue }), [inputValue]);
+  const getSearchValue = (state: RootState): string => state.search.value;
+  const searchValue = useSelector(getSearchValue);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!isExistItems && !isLoading) {
-      runLoadindCharacters(inputValue, setIsLoading, data, setData);
+      runLoadindCharacters(searchValue, setIsLoading, data, setData);
     }
   }, [data]);
 
   return (
-    <InputValueContext.Provider value={contextInputValue}>
-      <div className={styles['search-input']}>
-        <input
-          id="input"
-          type={type}
-          placeholder={placeholder}
-          value={inputValue}
-          onChange={(e): void => handleInputChange(e, setInputValue)}
-        />
-        <Button
-          name="Search"
-          onClick={(): Promise<void> =>
-            fetchCharactersByName(inputValue, setIsLoading, data, setData)
-          }
-          disabled={isLoading}
-        />
-      </div>
-    </InputValueContext.Provider>
+    <div className={styles['search-input']}>
+      <input
+        id="input"
+        type={type}
+        placeholder={placeholder}
+        value={searchValue}
+        onChange={(e): DispatchSearch => dispatch(saveSearchValue(e.target.value))}
+      />
+      <Button
+        name="Search"
+        onClick={(): Promise<void> =>
+          fetchCharactersByName(searchValue, setIsLoading, data, setData)
+        }
+        disabled={isLoading}
+      />
+    </div>
   );
 }

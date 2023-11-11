@@ -10,8 +10,3 @@ export const IsLoadingContext = createContext<{
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }>({ isLoading: false, setIsLoading: (): void => {} });
-
-export const InputValueContext = createContext<{
-  inputValue: string;
-  setInputValue: React.Dispatch<React.SetStateAction<string>>;
-}>({ inputValue: '', setInputValue: (): void => {} });
