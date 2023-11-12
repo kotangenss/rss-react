@@ -6,7 +6,7 @@ export interface IsLoadingState {
 }
 
 const initialState: IsLoadingState = {
-  main: false,
+  main: true,
   details: false,
 };
 

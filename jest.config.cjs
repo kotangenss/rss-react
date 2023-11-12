@@ -2,6 +2,9 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
+  testEnvironmentOptions: {
+    customExportConditions: [''],
+  },
   collectCoverage: true,
   collectCoverageFrom: ['./src/**'],
   coverageThreshold: {
@@ -17,6 +20,7 @@ module.exports = {
     '\\.(css|less|sass|scss)$': '<rootDir>/__mocks__/styleMock.js',
     '\\.(jpg|ico|jpeg|png|gif|ttf|eot|svg)$': '<rootDir>/__mocks__/fileMock.js',
   },
+  setupFiles: ['./jest.polyfills.js'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   modulePathIgnorePatterns: [
     '<rootDir>/src/interfaces',

@@ -18,7 +18,13 @@ module.exports = {
       env: {
         node: true,
       },
-      files: ['.eslintrc.{js,cjs}', 'vite.config.ts', 'setupTests.ts'],
+      files: [
+        '.eslintrc.{js,cjs}',
+        'vite.config.ts',
+        'setupTests.ts',
+        'src/utils/*',
+        'src/mocks/**',
+      ],
       rules: {
         'import/no-extraneous-dependencies': [
           'error',

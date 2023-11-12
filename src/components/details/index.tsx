@@ -51,13 +51,15 @@ export default function Details(): JSX.Element {
     skip: itemId === undefined,
   });
 
-  useEffect(() => {
-    dispatch(setIsLoadingDetailsValue(false));
-  }, [data]);
-
   const item = itemId && data?.data.results[0].id === itemId ? data?.data.results[0] : undefined;
   const comicsList = getListItems(item?.id, item?.comics.items, 'No comics');
   const seriesList = getListItems(item?.id, item?.series.items, 'No series');
+
+  useEffect(() => {
+    if (item) {
+      dispatch(setIsLoadingDetailsValue(false));
+    }
+  }, [data]);
 
   if (isError) {
     searchParams.delete('details');

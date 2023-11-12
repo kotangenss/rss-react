@@ -6,7 +6,6 @@ import SearchSection from '../../components/searchSection';
 import styles from './main.module.scss';
 import ResultSection from '../../components/resultSection';
 import Button from '../../components/button';
-import { Data } from '../../interfaces/contexts';
 import { RootState } from '../../store';
 import { setActiveItemIdValue } from '../../store/activeItemIdSlice';
 
@@ -32,8 +31,6 @@ export default function Main(): JSX.Element {
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
-  const getDataValue = (state: RootState): Data => state.data.value;
-  const dataValue = useSelector(getDataValue);
   const getActiveItemId = (state: RootState): number | undefined => state.activeItemId.value;
   const activeItemId = useSelector(getActiveItemId);
   const dispatch = useDispatch();
@@ -63,7 +60,7 @@ export default function Main(): JSX.Element {
           name="Simulate Error"
           onClick={(): void => handleButtonClick(setHasError)}
         />
-        <SearchSection isExistItems={!!dataValue.items} />
+        <SearchSection />
         <ResultSection />
         <p className={styles.attribution}>Data provided by Marvel. © 2014 Marvel</p>
       </div>
