@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigateFunction, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch } from '@reduxjs/toolkit';
@@ -34,7 +34,17 @@ export default function Main(): JSX.Element {
   const searchParams = new URLSearchParams(location.search);
   const getDataValue = (state: RootState): Data => state.data.value;
   const dataValue = useSelector(getDataValue);
+  const getActiveItemId = (state: RootState): number | undefined => state.activeItemId.value;
+  const activeItemId = useSelector(getActiveItemId);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!activeItemId) {
+      searchParams.delete('details');
+      searchParams.delete('name');
+      navigate(`?${searchParams.toString()}`);
+    }
+  }, [activeItemId]);
 
   if (hasError) {
     throw new Error('Throw an error after clicking a button');

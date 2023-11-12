@@ -9,11 +9,13 @@ export interface DispatchSearch {
   type: 'search/saveSearchValue';
 }
 
+const initialState: SearchState = {
+  value: localStorage.getItem('searchQuery') || '',
+};
+
 const searchSlice = createSlice({
   name: 'search',
-  initialState: {
-    value: localStorage.getItem('searchQuery') || '',
-  },
+  initialState,
   reducers: {
     saveSearchValue: (state, action): void => {
       state.value = action.payload;

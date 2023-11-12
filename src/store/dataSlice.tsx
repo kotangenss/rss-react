@@ -6,11 +6,17 @@ export interface DispatchData {
   type: 'data/setDataValue';
 }
 
+export interface DataState {
+  value: Data;
+}
+
+const initialState: DataState = {
+  value: { items: undefined, page: 1, limit: 3, total: 0 },
+};
+
 const dataSlice = createSlice({
   name: 'data',
-  initialState: {
-    value: { items: undefined, page: 1, limit: 3, total: 0 },
-  },
+  initialState,
   reducers: {
     setDataValue: (state, action): void => {
       state.value = action.payload;

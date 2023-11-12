@@ -1,11 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+export interface IsLoadingState {
+  main: boolean;
+  details: boolean;
+}
+
+const initialState: IsLoadingState = {
+  main: false,
+  details: false,
+};
+
 const isLoadingSlice = createSlice({
   name: 'isLoading',
-  initialState: {
-    main: false,
-    details: false,
-  },
+  initialState,
   reducers: {
     setIsLoadingMainValue: (state, action) => {
       state.main = action.payload;

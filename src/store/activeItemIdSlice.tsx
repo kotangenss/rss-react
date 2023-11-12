@@ -1,15 +1,21 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 export interface DispatchActiveItemId {
-  payload: undefined | number;
+  payload: number | undefined;
   type: 'activeItemId/setActiveItemIdValue';
 }
 
+export interface ActiveItemIdState {
+  value: number | undefined;
+}
+
+const initialState: ActiveItemIdState = {
+  value: undefined,
+};
+
 const activeItemIdSlice = createSlice({
   name: 'activeItemId',
-  initialState: {
-    value: undefined,
-  },
+  initialState,
   reducers: {
     setActiveItemIdValue: (state, action): void => {
       state.value = action.payload;

@@ -1,16 +1,15 @@
-import { useEffect, useState } from 'react';
 import { NavigateFunction, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch } from '@reduxjs/toolkit';
-import { GeneralItem, Item } from '../../interfaces/resultSection';
+import { useEffect } from 'react';
+import { GeneralItem } from '../../interfaces/resultSection';
 import styles from './details.module.scss';
 import Button from '../button';
-import { Result } from '../../interfaces/searchInput';
 import Loader from '../loader';
-import handleApiUrl from '../../helpers/handleApiUrl';
 import { RootState } from '../../store';
-import { setIsLoadingDetailsValue } from '../../store/isLoadingSlice';
+import { useGetCharacterQuery } from '../../store/marvelApi';
 import { setActiveItemIdValue } from '../../store/activeItemIdSlice';
+import { setIsLoadingDetailsValue } from '../../store/isLoadingSlice';
 
 function handleCloseClick(
   searchParams: URLSearchParams,
@@ -21,14 +20,6 @@ function handleCloseClick(
   searchParams.delete('name');
   dispatch(setActiveItemIdValue(undefined));
   navigate(`?${searchParams.toString()}`);
-}
-
-function getCharacter(itemId: number): Promise<Result> {
-  const key = import.meta.env.VITE_API_KEY;
-  const hash = import.meta.env.VITE_HASH;
-  const apiUrl = `https://gateway.marvel.com/v1/public/characters/${itemId}?ts=1&apikey=${key}&hash=${hash}`;
-
-  return handleApiUrl(apiUrl);
 }
 
 function getListItems(
@@ -46,46 +37,42 @@ function getListItems(
 }
 
 export default function Details(): JSX.Element {
-  const [item, setItem] = useState<Item | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
+
   const getActiveItemIdValue = (state: RootState): undefined | number => state.activeItemId.value;
   const itemId = useSelector(getActiveItemIdValue);
-  const comicsList = getListItems(item?.id, item?.comics.items, 'No comics');
-  const seriesList = getListItems(item?.id, item?.series.items, 'No series');
   const getIsLoadingValue = (state: RootState): boolean => state.isLoading.details;
-  const isLoadingValue = useSelector(getIsLoadingValue);
+  const isLoading = useSelector(getIsLoadingValue);
   const dispatch = useDispatch();
 
+  const { data, isError, error } = useGetCharacterQuery(itemId, {
+    skip: itemId === undefined,
+  });
+
   useEffect(() => {
-    if (itemId) {
-      dispatch(setIsLoadingDetailsValue(true));
-      getCharacter(Number(itemId))
-        .then((response) => {
-          setItem(response.data.results[0]);
-          dispatch(setIsLoadingDetailsValue(false));
-        })
-        .catch((error: Error) => {
-          searchParams.delete('details');
-          searchParams.delete('name');
-          dispatch(setIsLoadingDetailsValue(false));
-          console.error('Error:', error);
-          navigate(`?${searchParams.toString()}`);
-        });
-    } else {
-      setItem(null);
-      dispatch(setIsLoadingDetailsValue(false));
-    }
-  }, [itemId]);
+    dispatch(setIsLoadingDetailsValue(false));
+  }, [data]);
 
-  if (isLoadingValue) window.scrollTo(0, 0);
+  const item = itemId && data?.data.results[0].id === itemId ? data?.data.results[0] : undefined;
+  const comicsList = getListItems(item?.id, item?.comics.items, 'No comics');
+  const seriesList = getListItems(item?.id, item?.series.items, 'No series');
 
-  if (!isLoadingValue && !item) return <span />;
+  if (isError) {
+    searchParams.delete('details');
+    searchParams.delete('name');
+    console.error('Error:', error);
+    navigate(`?${searchParams.toString()}`);
+  }
+
+  if (itemId) window.scrollTo(0, 0);
+
+  if (!isLoading && !item) return <span />;
 
   return (
     <div className={styles.container}>
-      {!isLoadingValue && item ? (
+      {!isLoading && item ? (
         <div>
           <h2>Details</h2>
           <h3>

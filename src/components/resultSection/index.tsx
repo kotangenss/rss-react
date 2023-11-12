@@ -9,7 +9,8 @@ import Loader from '../loader';
 import { Data } from '../../interfaces/contexts';
 import { RootState } from '../../store';
 import { setDataValue } from '../../store/dataSlice';
-import { DispatchActiveItemId, setActiveItemIdValue } from '../../store/activeItemIdSlice';
+import { setActiveItemIdValue } from '../../store/activeItemIdSlice';
+import { setIsLoadingDetailsValue, setIsLoadingMainValue } from '../../store/isLoadingSlice';
 
 function scrollToHead(myRef: React.RefObject<HTMLDivElement>): void {
   myRef.current?.scrollIntoView();
@@ -18,11 +19,13 @@ function scrollToHead(myRef: React.RefObject<HTMLDivElement>): void {
 function goToNextPage(data: Data, dispatch: Dispatch): void {
   const { page, limit, total } = data;
   dispatch(setDataValue({ items: undefined, page: page + 1, limit, total }));
+  dispatch(setIsLoadingMainValue(true));
 }
 
 function goToPrevPage(data: Data, dispatch: Dispatch): void {
   const { page, limit, total } = data;
   dispatch(setDataValue({ items: undefined, page: page - 1, limit, total }));
+  dispatch(setIsLoadingMainValue(true));
 }
 
 function handleItemCountChange(
@@ -33,6 +36,12 @@ function handleItemCountChange(
   const limit = parseInt(event.target.value, 10);
   const { total } = data;
   dispatch(setDataValue({ items: undefined, page: 1, limit, total }));
+  dispatch(setIsLoadingMainValue(true));
+}
+
+function showItem(id: number, dispatch: Dispatch): void {
+  dispatch(setIsLoadingDetailsValue(true));
+  dispatch(setActiveItemIdValue(id));
 }
 
 export default function ResultSection(): JSX.Element {
@@ -49,7 +58,7 @@ export default function ResultSection(): JSX.Element {
     <Link
       data-testid={`link-${item.id}`}
       to={`/?page=${page}&details=${item.id}&name=${item.name}`}
-      onClick={(): DispatchActiveItemId => dispatch(setActiveItemIdValue(item.id))}
+      onClick={(): void => showItem(item.id, dispatch)}
       key={`item.name-item.id-${Math.random()}`}
       className={styles['result-item']}
     >
