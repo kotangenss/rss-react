@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { ChangeEvent, RefObject, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch } from '@reduxjs/toolkit';
@@ -6,13 +6,13 @@ import styles from './resultsSection.module.scss';
 import Button from '../button';
 import SelectInput from '../selectInput';
 import Loader from '../loader';
-import { Data } from '../../interfaces/contexts';
+import { Data } from '../../interfaces/store';
 import { RootState } from '../../store';
 import { setDataValue } from '../../store/dataSlice';
 import { setActiveItemIdValue } from '../../store/activeItemIdSlice';
 import { setIsLoadingDetailsValue, setIsLoadingMainValue } from '../../store/isLoadingSlice';
 
-function scrollToHead(myRef: React.RefObject<HTMLDivElement>): void {
+function scrollToHead(myRef: RefObject<HTMLDivElement>): void {
   myRef.current?.scrollIntoView();
 }
 
@@ -29,7 +29,7 @@ function goToPrevPage(data: Data, dispatch: Dispatch): void {
 }
 
 function handleItemCountChange(
-  event: React.ChangeEvent<HTMLSelectElement>,
+  event: ChangeEvent<HTMLSelectElement>,
   data: Data,
   dispatch: Dispatch
 ): void {

@@ -1,3 +1,4 @@
+import { ChangeEvent } from 'react';
 import styles from './select.module.scss';
 
 export default function SelectInput({
@@ -5,7 +6,7 @@ export default function SelectInput({
   options,
   value,
 }: {
-  onSelectChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  onSelectChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   options: string[];
   value: string;
 }): JSX.Element {

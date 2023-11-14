@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react';
+import { PropsWithChildren, ReactElement } from 'react';
 import { RenderOptions, render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { setupListeners } from '@reduxjs/toolkit/dist/query';
@@ -11,7 +11,7 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
 }
 
 export function renderWithProviders(
-  ui: React.ReactElement,
+  ui: ReactElement,
   {
     preloadedState = {},
     store = setupStore(preloadedState),

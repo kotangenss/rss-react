@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavigateFunction, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch } from '@reduxjs/toolkit';
@@ -8,10 +8,6 @@ import ResultSection from '../../components/resultSection';
 import Button from '../../components/button';
 import { RootState } from '../../store';
 import { setActiveItemIdValue } from '../../store/activeItemIdSlice';
-
-function handleButtonClick(setHasError: React.Dispatch<React.SetStateAction<boolean>>): void {
-  setHasError(true);
-}
 
 function handleClickOnMain(
   searchParams: URLSearchParams,
@@ -58,7 +54,7 @@ export default function Main(): JSX.Element {
         <Button
           className="simulate-button"
           name="Simulate Error"
-          onClick={(): void => handleButtonClick(setHasError)}
+          onClick={(): void => setHasError(true)}
         />
         <SearchSection />
         <ResultSection />

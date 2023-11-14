@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { Data } from '../interfaces/contexts';
+import { Data } from '../interfaces/store';
 
 export interface DispatchData {
   payload: Data;

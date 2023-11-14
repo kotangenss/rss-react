@@ -1,12 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 export interface DispatchActiveItemId {
-  payload: number | undefined;
   type: 'activeItemId/setActiveItemIdValue';
+  payload?: number;
 }
 
 export interface ActiveItemIdState {
-  value: number | undefined;
+  value?: number;
 }
 
 const initialState: ActiveItemIdState = {

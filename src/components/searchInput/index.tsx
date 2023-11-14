@@ -4,7 +4,7 @@ import { Dispatch } from '@reduxjs/toolkit';
 import styles from './input.module.scss';
 import Button from '../button';
 import { SearchInputProps } from '../../interfaces/searchInput';
-import { Data } from '../../interfaces/contexts';
+import { Data } from '../../interfaces/store';
 import { RootState } from '../../store';
 import { DispatchSearch, saveSearchValue } from '../../store/searchSlice';
 import { setIsLoadingMainValue } from '../../store/isLoadingSlice';

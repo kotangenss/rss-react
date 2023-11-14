@@ -23,9 +23,9 @@ function handleCloseClick(
 }
 
 function getListItems(
-  itemId: number | undefined,
-  items: GeneralItem[] | undefined,
-  defaultValue: string
+  defaultValue: string,
+  itemId?: number,
+  items?: GeneralItem[]
 ): string | JSX.Element[] {
   if (items && items.length > 0) {
     return items.map((item: GeneralItem) => (
@@ -52,8 +52,8 @@ export default function Details(): JSX.Element {
   });
 
   const item = itemId && data?.data.results[0].id === itemId ? data?.data.results[0] : undefined;
-  const comicsList = getListItems(item?.id, item?.comics.items, 'No comics');
-  const seriesList = getListItems(item?.id, item?.series.items, 'No series');
+  const comicsList = getListItems('No comics', item?.id, item?.comics.items);
+  const seriesList = getListItems('No series', item?.id, item?.series.items);
 
   useEffect(() => {
     if (item) {
