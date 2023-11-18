@@ -1,8 +1,8 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import ResultSection from '.';
-import { Data } from '../../interfaces/contexts';
-import { Context, IsLoadingContext } from '../contexts';
+import { renderWithProviders } from '../../utils/test-utils';
+import { AppStore } from '../../store';
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -11,22 +11,20 @@ beforeEach(() => {
 });
 
 describe('resultSection', () => {
-  it('Render appropriate message is displayed if no cards are present', () => {
-    let data: Data = { items: undefined, page: 0, limit: 0, total: 0 };
-    const setData = jest.fn().mockImplementation((a) => {
-      data = a;
+  it('Render appropriate message is displayed if no cards are present', async () => {
+    await act(() => {
+      renderWithProviders(
+        <MemoryRouter>
+          <ResultSection />
+        </MemoryRouter>,
+        {
+          preloadedState: {
+            data: { value: { items: undefined, page: 0, limit: 0, total: 0 } },
+            isLoading: { main: false, details: false },
+          },
+        }
+      );
     });
-    const value = { data, setData };
-
-    act(() =>
-      render(
-        <Context.Provider value={value}>
-          <MemoryRouter>
-            <ResultSection />
-          </MemoryRouter>
-        </Context.Provider>
-      )
-    );
 
     const paginatonText = screen.getByText('No pages');
     const titleText = screen.getByText('Nothing found');
@@ -35,30 +33,22 @@ describe('resultSection', () => {
     expect(titleText).toBeInTheDocument();
   });
 
-  it('Renders Loader', () => {
-    let data: Data = { items: undefined, page: 0, limit: 0, total: 0 };
-    const setData = jest.fn().mockImplementation((a): void => {
-      data = a;
+  it('Renders Loader', async () => {
+    act(() => {
+      renderWithProviders(
+        <MemoryRouter>
+          <ResultSection />
+        </MemoryRouter>,
+        {
+          preloadedState: {
+            data: { value: { items: undefined, page: 0, limit: 0, total: 0 } },
+            isLoading: { main: true, details: false },
+          },
+        }
+      );
     });
-    const value = { data, setData };
 
-    const isLoading = true;
-    const setIsLoading = jest.fn();
-    const isLoadingValue = { isLoading, setIsLoading };
-
-    act(() =>
-      render(
-        <Context.Provider value={value}>
-          <IsLoadingContext.Provider value={isLoadingValue}>
-            <MemoryRouter>
-              <ResultSection />
-            </MemoryRouter>
-          </IsLoadingContext.Provider>
-        </Context.Provider>
-      )
-    );
-
-    const loader = screen.queryByTestId('loader');
+    const loader = screen.getByTestId('loader');
     expect(loader).toBeInTheDocument();
   });
 
@@ -102,21 +92,20 @@ describe('resultSection', () => {
         ],
       },
     };
-    let data: Data = { items: [item, item, item], page: 1, limit: 3, total: 4 };
-    const setData = jest.fn().mockImplementation((a): void => {
-      data = a;
-    });
-    const value = { data, setData };
 
-    act(() =>
-      render(
-        <Context.Provider value={value}>
-          <MemoryRouter>
-            <ResultSection />
-          </MemoryRouter>
-        </Context.Provider>
-      )
-    );
+    act(() => {
+      renderWithProviders(
+        <MemoryRouter>
+          <ResultSection />
+        </MemoryRouter>,
+        {
+          preloadedState: {
+            data: { value: { items: [item, item, item], page: 1, limit: 3, total: 4 } },
+            isLoading: { main: false, details: false },
+          },
+        }
+      );
+    });
 
     const paginatonText = screen.getByText('Page 1 of 2');
     const titleText = screen.getByText('Results (4)');
@@ -173,21 +162,20 @@ describe('resultSection', () => {
         ],
       },
     };
-    let data: Data = { items: [item], page: 1, limit: 3, total: 1 };
-    const setData = jest.fn().mockImplementation((a): void => {
-      data = a;
-    });
-    const value = { data, setData };
 
-    act(() =>
-      render(
-        <Context.Provider value={value}>
-          <MemoryRouter>
-            <ResultSection />
-          </MemoryRouter>
-        </Context.Provider>
-      )
-    );
+    act(() => {
+      renderWithProviders(
+        <MemoryRouter>
+          <ResultSection />
+        </MemoryRouter>,
+        {
+          preloadedState: {
+            data: { value: { items: [item], page: 1, limit: 3, total: 1 } },
+            isLoading: { main: false, details: false },
+          },
+        }
+      );
+    });
 
     const paginatonText = screen.getByText('Page 1 of 1');
     const titleText = screen.getByText('Results (1)');
@@ -201,7 +189,7 @@ describe('resultSection', () => {
     );
   });
 
-  it('Click to next page button', () => {
+  it('Click to next page button', async () => {
     const item = {
       id: 1,
       name: 'Item 1',
@@ -241,20 +229,17 @@ describe('resultSection', () => {
         ],
       },
     };
-    let data: Data = { items: [item], page: 1, limit: 1, total: 2 };
-    const setData = jest.fn().mockImplementation((a): void => {
-      data = a;
-    });
-    const value = { data, setData };
 
-    act(() =>
-      render(
-        <Context.Provider value={value}>
-          <MemoryRouter>
-            <ResultSection />
-          </MemoryRouter>
-        </Context.Provider>
-      )
+    const store: AppStore = renderWithProviders(
+      <MemoryRouter>
+        <ResultSection />
+      </MemoryRouter>,
+      {
+        preloadedState: {
+          data: { value: { items: [item], page: 1, limit: 1, total: 2 } },
+          isLoading: { main: false, details: false },
+        },
+      }
     );
 
     const paginationText = screen.getByText('Page 1 of 2');
@@ -265,15 +250,14 @@ describe('resultSection', () => {
     expect(titleText).toBeInTheDocument();
     expect(next).toBeInTheDocument();
 
-    act(() => next.click());
+    await act(() => next.click());
 
-    waitFor(() => {
-      expect(data.items).toBe(undefined);
-      expect(data.page).toBe(2);
-    });
+    const { data } = store.getState();
+    expect(data.value.items).toBe(undefined);
+    expect(data.value.page).toBe(2);
   });
 
-  it('Click to prev page button', () => {
+  it('Click to prev page button', async () => {
     const item = {
       id: 1,
       name: 'Item 1',
@@ -313,20 +297,17 @@ describe('resultSection', () => {
         ],
       },
     };
-    let data: Data = { items: [item], page: 2, limit: 1, total: 2 };
-    const setData = jest.fn().mockImplementation((a): void => {
-      data = a;
-    });
-    const value = { data, setData };
 
-    act(() =>
-      render(
-        <Context.Provider value={value}>
-          <MemoryRouter>
-            <ResultSection />
-          </MemoryRouter>
-        </Context.Provider>
-      )
+    const store: AppStore = renderWithProviders(
+      <MemoryRouter>
+        <ResultSection />
+      </MemoryRouter>,
+      {
+        preloadedState: {
+          data: { value: { items: [item], page: 2, limit: 1, total: 2 } },
+          isLoading: { main: false, details: false },
+        },
+      }
     );
 
     const paginatonText = screen.getByText('Page 2 of 2');
@@ -336,15 +317,14 @@ describe('resultSection', () => {
     expect(paginatonText).toBeInTheDocument();
     expect(titleText).toBeInTheDocument();
 
-    act(() => prev.click());
+    await act(() => prev.click());
 
-    waitFor(() => {
-      expect(data.items).toBe(undefined);
-      expect(data.page).toBe(2);
-    });
+    const { data } = store.getState();
+    expect(data.value.items).toBe(undefined);
+    expect(data.value.page).toBe(1);
   });
 
-  it('Successful update of the card limit on the page', () => {
+  it('Successful update of the card limit on the page', async () => {
     const item = {
       id: 1,
       name: 'Item 1',
@@ -384,32 +364,28 @@ describe('resultSection', () => {
         ],
       },
     };
-    let data: Data = { items: [item], page: 1, limit: 1, total: 2 };
-    const setData = jest.fn().mockImplementation((a): void => {
-      data = a;
-    });
-    const value = { data, setData };
 
-    act(() =>
-      render(
-        <Context.Provider value={value}>
-          <MemoryRouter>
-            <ResultSection />
-          </MemoryRouter>
-        </Context.Provider>
-      )
+    const store: AppStore = renderWithProviders(
+      <MemoryRouter>
+        <ResultSection />
+      </MemoryRouter>,
+      {
+        preloadedState: {
+          data: { value: { items: [item], page: 1, limit: 3, total: 1 } },
+          isLoading: { main: false, details: false },
+        },
+      }
     );
 
     const select = screen.getByRole('combobox');
 
-    act(() => {
-      fireEvent.change(select, { target: { value: 2 } });
+    await act(() => {
+      fireEvent.change(select, { target: { value: 6 } });
     });
 
-    waitFor(() => {
-      expect(data.items).toBe(undefined);
-      expect(data.limit).toBe(6);
-    });
+    const { data } = store.getState();
+    expect(data.value.items).toBe(undefined);
+    expect(data.value.limit).toBe(6);
   });
 
   it('Navigates to the correct URL on item click', () => {
@@ -452,25 +428,23 @@ describe('resultSection', () => {
         ],
       },
     };
-    let data = { items: [item], page: 1, limit: 1, total: 2 };
-    const setData = jest.fn().mockImplementation((a): void => {
-      data = a;
-    });
-    const value = { data, setData };
 
-    act(() =>
-      render(
-        <Context.Provider value={value}>
-          <MemoryRouter>
-            <ResultSection />
-          </MemoryRouter>
-        </Context.Provider>
-      )
-    );
-
-    const link = screen.getByTestId(`link-${item.id}`);
     act(() => {
-      link.click();
+      renderWithProviders(
+        <MemoryRouter>
+          <ResultSection />
+        </MemoryRouter>,
+        {
+          preloadedState: {
+            data: { value: { items: [item], page: 1, limit: 3, total: 1 } },
+            isLoading: { main: false, details: false },
+          },
+        }
+      );
+    });
+
+    act(() => {
+      screen.getByTestId(`link-${item.id}`).click();
     });
 
     waitFor(() => {

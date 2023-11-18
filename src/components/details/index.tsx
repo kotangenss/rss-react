@@ -1,30 +1,31 @@
-import { useEffect, useState } from 'react';
 import { NavigateFunction, useLocation, useNavigate } from 'react-router-dom';
-import { GeneralItem, Item } from '../../interfaces/resultSection';
+import { useDispatch, useSelector } from 'react-redux';
+import { Dispatch } from '@reduxjs/toolkit';
+import { useEffect } from 'react';
+import { GeneralItem } from '../../interfaces/resultSection';
 import styles from './details.module.scss';
 import Button from '../button';
-import { Result } from '../../interfaces/searchInput';
 import Loader from '../loader';
-import handleApiUrl from '../../helpers/handleApiUrl';
+import { RootState } from '../../store';
+import { useGetCharacterQuery } from '../../store/marvelApi';
+import { setActiveItemIdValue } from '../../store/activeItemIdSlice';
+import { setIsLoadingDetailsValue } from '../../store/isLoadingSlice';
 
-function handleCloseClick(searchParams: URLSearchParams, navigate: NavigateFunction): void {
+function handleCloseClick(
+  searchParams: URLSearchParams,
+  navigate: NavigateFunction,
+  dispatch: Dispatch
+): void {
   searchParams.delete('details');
   searchParams.delete('name');
+  dispatch(setActiveItemIdValue(undefined));
   navigate(`?${searchParams.toString()}`);
 }
 
-function getCharacter(itemId: number): Promise<Result> {
-  const key = import.meta.env.VITE_API_KEY;
-  const hash = import.meta.env.VITE_HASH;
-  const apiUrl = `https://gateway.marvel.com/v1/public/characters/${itemId}?ts=1&apikey=${key}&hash=${hash}`;
-
-  return handleApiUrl(apiUrl);
-}
-
 function getListItems(
-  itemId: number | undefined,
-  items: GeneralItem[] | undefined,
-  defaultValue: string
+  defaultValue: string,
+  itemId?: number,
+  items?: GeneralItem[]
 ): string | JSX.Element[] {
   if (items && items.length > 0) {
     return items.map((item: GeneralItem) => (
@@ -36,37 +37,38 @@ function getListItems(
 }
 
 export default function Details(): JSX.Element {
-  const [item, setItem] = useState<Item | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
-  const itemId = searchParams.get('details');
-  const comicsList = getListItems(item?.id, item?.comics.items, 'No comics');
-  const seriesList = getListItems(item?.id, item?.series.items, 'No series');
+
+  const getActiveItemIdValue = (state: RootState): undefined | number => state.activeItemId.value;
+  const itemId = useSelector(getActiveItemIdValue);
+  const getIsLoadingValue = (state: RootState): boolean => state.isLoading.details;
+  const isLoading = useSelector(getIsLoadingValue);
+  const dispatch = useDispatch();
+
+  const { data, isError, error } = useGetCharacterQuery(itemId, {
+    skip: itemId === undefined,
+  });
+
+  const item = itemId && data?.data.results[0].id === itemId ? data?.data.results[0] : undefined;
+  const comicsList = getListItems('No comics', item?.id, item?.comics.items);
+  const seriesList = getListItems('No series', item?.id, item?.series.items);
 
   useEffect(() => {
-    if (itemId) {
-      setIsLoading(true);
-      getCharacter(Number(itemId))
-        .then((response) => {
-          setItem(response.data.results[0]);
-          setIsLoading(false);
-        })
-        .catch((error: Error) => {
-          searchParams.delete('details');
-          searchParams.delete('name');
-          setIsLoading(false);
-          console.error('Error:', error);
-          navigate(`?${searchParams.toString()}`);
-        });
-    } else {
-      setItem(null);
-      setIsLoading(false);
+    if (item) {
+      dispatch(setIsLoadingDetailsValue(false));
     }
-  }, [itemId]);
+  }, [data]);
 
-  if (isLoading) window.scrollTo(0, 0);
+  if (isError) {
+    searchParams.delete('details');
+    searchParams.delete('name');
+    console.error('Error:', error);
+    navigate(`?${searchParams.toString()}`);
+  }
+
+  if (itemId) window.scrollTo(0, 0);
 
   if (!isLoading && !item) return <span />;
 
@@ -94,7 +96,7 @@ export default function Details(): JSX.Element {
           <Button
             className={styles['close-details']}
             name="x"
-            onClick={(): void => handleCloseClick(searchParams, navigate)}
+            onClick={(): void => handleCloseClick(searchParams, navigate, dispatch)}
           />
         </div>
       ) : (

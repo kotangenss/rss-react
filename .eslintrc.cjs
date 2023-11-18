@@ -11,13 +11,20 @@ module.exports = {
     'plugin:react/recommended',
     'plugin:prettier/recommended',
     'plugin:jest/recommended',
+    'plugin:react-redux/recommended',
   ],
   overrides: [
     {
       env: {
         node: true,
       },
-      files: ['.eslintrc.{js,cjs}', 'vite.config.ts', 'setupTests.ts'],
+      files: [
+        '.eslintrc.{js,cjs}',
+        'vite.config.ts',
+        'setupTests.ts',
+        'src/utils/*',
+        'src/mocks/**',
+      ],
       rules: {
         'import/no-extraneous-dependencies': [
           'error',
@@ -38,7 +45,7 @@ module.exports = {
     sourceType: 'module',
     project: './tsconfig.json',
   },
-  plugins: ['@typescript-eslint', 'react', 'react-hooks', 'prettier', 'jest'],
+  plugins: ['@typescript-eslint', 'react', 'react-hooks', 'prettier', 'jest', 'react-redux'],
   rules: {
     'react/react-in-jsx-scope': 0,
     'no-console': 0,
@@ -53,6 +60,13 @@ module.exports = {
       'error',
       {
         trailingComma: 'es5',
+      },
+    ],
+    'no-param-reassign': [
+      'error',
+      {
+        props: true,
+        ignorePropertyModificationsFor: ['state'],
       },
     ],
   },

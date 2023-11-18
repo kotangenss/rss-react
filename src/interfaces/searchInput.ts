@@ -3,7 +3,6 @@ import { Item } from './resultSection';
 export interface SearchInputProps {
   type: string;
   placeholder: string;
-  isExistItems: boolean;
 }
 
 export interface Result {

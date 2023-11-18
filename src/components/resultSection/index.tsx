@@ -1,40 +1,54 @@
-import React, { useContext, useEffect } from 'react';
+import React, { ChangeEvent, RefObject, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Dispatch } from '@reduxjs/toolkit';
 import styles from './resultsSection.module.scss';
 import Button from '../button';
 import SelectInput from '../selectInput';
 import Loader from '../loader';
-import { Context, IsLoadingContext } from '../contexts';
-import { Data } from '../../interfaces/contexts';
+import { Data } from '../../interfaces/store';
+import { RootState } from '../../store';
+import { setDataValue } from '../../store/dataSlice';
+import { setActiveItemIdValue } from '../../store/activeItemIdSlice';
+import { setIsLoadingDetailsValue, setIsLoadingMainValue } from '../../store/isLoadingSlice';
 
-function scrollToHead(myRef: React.RefObject<HTMLDivElement>): void {
+function scrollToHead(myRef: RefObject<HTMLDivElement>): void {
   myRef.current?.scrollIntoView();
 }
 
-function goToNextPage(data: Data, setData: React.Dispatch<React.SetStateAction<Data>>): void {
+function goToNextPage(data: Data, dispatch: Dispatch): void {
   const { page, limit, total } = data;
-  setData({ items: undefined, page: page + 1, limit, total });
+  dispatch(setDataValue({ items: undefined, page: page + 1, limit, total }));
+  dispatch(setIsLoadingMainValue(true));
 }
 
-function goToPrevPage(data: Data, setData: React.Dispatch<React.SetStateAction<Data>>): void {
+function goToPrevPage(data: Data, dispatch: Dispatch): void {
   const { page, limit, total } = data;
-  setData({ items: undefined, page: page - 1, limit, total });
+  dispatch(setDataValue({ items: undefined, page: page - 1, limit, total }));
+  dispatch(setIsLoadingMainValue(true));
 }
 
 function handleItemCountChange(
-  event: React.ChangeEvent<HTMLSelectElement>,
+  event: ChangeEvent<HTMLSelectElement>,
   data: Data,
-  setData: React.Dispatch<React.SetStateAction<Data>>
+  dispatch: Dispatch
 ): void {
   const limit = parseInt(event.target.value, 10);
   const { total } = data;
-  setData({ items: undefined, page: 1, limit, total });
+  dispatch(setDataValue({ items: undefined, page: 1, limit, total }));
+  dispatch(setIsLoadingMainValue(true));
+}
+
+function showItem(id: number, dispatch: Dispatch): void {
+  dispatch(setIsLoadingDetailsValue(true));
+  dispatch(setActiveItemIdValue(id));
 }
 
 export default function ResultSection(): JSX.Element {
-  const { data, setData } = useContext(Context);
-  const { items, page, total, limit } = data;
-  const { isLoading } = useContext(IsLoadingContext);
+  const getDataValue = (state: RootState): Data => state.data.value;
+  const dataValue = useSelector(getDataValue);
+  const dispatch = useDispatch();
+  const { items, page, total, limit } = dataValue;
   const myRef = React.createRef<HTMLDivElement>();
   const location = useLocation();
   const navigate = useNavigate();
@@ -44,6 +58,7 @@ export default function ResultSection(): JSX.Element {
     <Link
       data-testid={`link-${item.id}`}
       to={`/?page=${page}&details=${item.id}&name=${item.name}`}
+      onClick={(): void => showItem(item.id, dispatch)}
       key={`item.name-item.id-${Math.random()}`}
       className={styles['result-item']}
     >
@@ -70,6 +85,8 @@ export default function ResultSection(): JSX.Element {
         {Math.ceil(total / limit)}
       </p>
     );
+  const getIsLoadingValue = (state: RootState): boolean => state.isLoading.main;
+  const isLoadingValue = useSelector(getIsLoadingValue);
   let resultHeader;
 
   if (itemCounts === 0) {
@@ -92,27 +109,29 @@ export default function ResultSection(): JSX.Element {
 
   return (
     <div ref={myRef} className={styles['result-section']}>
-      {!isLoading && resultHeader}
+      {!isLoadingValue && resultHeader}
       <SelectInput
-        onSelectChange={(event): void => handleItemCountChange(event, data, setData)}
+        onSelectChange={(event): void => handleItemCountChange(event, dataValue, dispatch)}
         options={itemsPerPage}
         value={String(limit)}
       />
-      <div className={styles['result-container']}>{isLoading ? <Loader size="s" /> : itemList}</div>
+      <div className={styles['result-container']}>
+        {isLoadingValue ? <Loader size="s" /> : itemList}
+      </div>
       <div className={styles['result-pagination']}>
-        {isLoading ? (
+        {isLoadingValue ? (
           <p />
         ) : (
           <>
             <Button
               name="Prev"
-              onClick={(): void => goToPrevPage(data, setData)}
+              onClick={(): void => goToPrevPage(dataValue, dispatch)}
               disabled={page === 1}
             />
             {pagesnumberOfPages}
             <Button
               name="Next"
-              onClick={(): void => goToNextPage(data, setData)}
+              onClick={(): void => goToNextPage(dataValue, dispatch)}
               disabled={page === Math.ceil(total / limit) || itemCounts === 0}
             />
           </>
