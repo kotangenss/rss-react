@@ -4,7 +4,7 @@ export const item = {
   id: 1,
   name: 'Item 1',
   thumbnail: {
-    path: 'path/to/image1',
+    path: 'http://localhost',
     extension: 'jpg',
   },
   description: 'Description of item 1',

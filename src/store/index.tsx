@@ -1,26 +1,20 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import type { PreloadedState } from '@reduxjs/toolkit';
 import { ToolkitStore } from '@reduxjs/toolkit/dist/configureStore';
-import searchReducer from './searchSlice';
-import isLoadingReducer from './isLoadingSlice';
-import dataReducer from './dataSlice';
-import activeItemIdReducer from './activeItemIdSlice';
+import { createWrapper } from 'next-redux-wrapper';
 import { marvelApi } from './marvelApi';
 
 const rootReducer = combineReducers({
-  search: searchReducer,
-  isLoading: isLoadingReducer,
-  data: dataReducer,
-  activeItemId: activeItemIdReducer,
   [marvelApi.reducerPath]: marvelApi.reducer,
 });
 
-export const store = configureStore({
-  reducer: rootReducer,
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(marvelApi.middleware),
-});
+export const store = (): ToolkitStore =>
+  configureStore({
+    reducer: rootReducer,
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(marvelApi.middleware),
+  });
 
-export const setupStore = (preloadedState: PreloadedState<RootState>): ToolkitStore => {
+export const setupStore = (preloadedState: PreloadedState<AppState>): ToolkitStore => {
   return configureStore({
     reducer: rootReducer,
     preloadedState,
@@ -32,5 +26,10 @@ export const setupStore = (preloadedState: PreloadedState<RootState>): ToolkitSt
   });
 };
 
-export type RootState = ReturnType<typeof store.getState>;
+export type RootState = ReturnType<typeof store>;
+export type AppState = ReturnType<RootState['getState']>;
 export type AppStore = ReturnType<typeof setupStore>;
+
+export const wrapper = createWrapper<AppStore>(store, {
+  debug: false,
+});

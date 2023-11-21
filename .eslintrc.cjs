@@ -12,19 +12,14 @@ module.exports = {
     'plugin:prettier/recommended',
     'plugin:jest/recommended',
     'plugin:react-redux/recommended',
+    'plugin:@next/next/recommended',
   ],
   overrides: [
     {
       env: {
         node: true,
       },
-      files: [
-        '.eslintrc.{js,cjs}',
-        'vite.config.ts',
-        'setupTests.ts',
-        'src/utils/*',
-        'src/mocks/**',
-      ],
+      files: ['.eslintrc.{js,cjs}', 'src/mocks/**', 'src/utils/*'],
       rules: {
         'import/no-extraneous-dependencies': [
           'error',
@@ -76,4 +71,5 @@ module.exports = {
       version: 'detect',
     },
   },
+  ignorePatterns: ['dist'],
 };
