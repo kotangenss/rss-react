@@ -58,8 +58,6 @@ export default function ResultSection({ mainData }: { mainData: ApiResp }): JSX.
     resultHeader = <h2>Results ({total})</h2>;
   }
 
-  // myRef.current?.scrollIntoView();
-
   const handleClickOnPrevButton = (): void => {
     urlSearchParams.set('limit', '3');
     urlSearchParams.set('page', String(page - 1));
