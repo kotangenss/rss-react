@@ -1,0 +1,51 @@
+@import 'src/sass/variables.scss';
+
+.body {
+  background: $generalBackground url('/img/bg-image.png') top center no-repeat;
+  color: $white;
+  min-height: 98vmin;
+
+  p,
+  li,
+  h2,
+  h3,
+  h4 {
+    &::selection {
+      color: $white;
+      background-color: $accent;
+    }
+  }
+
+  button {
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+}
+
+.container {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  width: 80%;
+  margin: 0 auto;
+  padding: 0 25px;
+}
+
+.error-boundary {
+  text-align: center;
+  font-size: 5vw;
+  margin: 130px 0 10px;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin: 0 auto;
+}
+
+.attribution {
+  opacity: 0.3;
+  margin-top: 50px;
+}
